@@ -635,11 +635,22 @@ function guiLead(){
       .then(xong).catch(()=>{ btn.disabled=false; btn.textContent='Gửi lại';
         alert('Chưa gửi được. Anh/chị kiểm tra kết nối mạng và thử lại giúp em.'); });
   } else {
-    /* Chưa gắn nơi nhận — mở Zalo kèm nội dung tóm tắt */
+    /* Chưa gắn nơi nhận — chỉ mở được Zalo, thông tin CHƯA về tới người bán.
+       Không được báo "đã ghi nhận" ở nhánh này: khách phải biết là còn phải bấm gửi,
+       không thì họ đóng máy và tưởng xong, còn bên bán thì mất trắng khách. */
     const msg = `Em muốn đăng ký tư vấn NOXH ${DA.ten}.\nTên: ${data.ten}\nSĐT: ${data.sdt}\n${data.tomTat}`;
-    if(navigator.clipboard) navigator.clipboard.writeText(msg).catch(()=>{});
+    let daChep = false;
+    if(navigator.clipboard){
+      try{ navigator.clipboard.writeText(msg); daChep = true; }catch(e){}
+    }
     if(NV.zalo) window.open(NV.zalo,'_blank');
-    xong();
+    document.getElementById('leadbox').innerHTML =
+      `<div class="verdict v-warn" style="margin:0"><h2>⏳ Còn một bước nữa</h2>
+       <p>Cửa sổ Zalo vừa mở${daChep?' và nội dung đã được chép sẵn — anh/chị chỉ cần <b>dán và bấm gửi</b>':' — anh/chị nhắn giúp em nội dung bên dưới'}.
+       Chưa bấm gửi bên Zalo thì bên em <b>chưa nhận được</b> thông tin.</p></div>
+       <textarea readonly style="width:100%;margin-top:10px;padding:11px 12px;font:inherit;font-size:13.5px;
+         border:1.5px solid var(--line);border-radius:10px;background:#fbfcfd;min-height:110px;resize:vertical">${msg}</textarea>
+       ${NV.sdt?`<p class="note" style="margin-top:10px">Không dùng Zalo thì anh/chị gọi thẳng số <b>${NV.sdt}</b> cũng được.</p>`:''}`;
   }
 }
 
