@@ -561,9 +561,10 @@ function renderKetQua(){
         cho tới khi anh/chị bấm nút này.
       </div>
     </div>
-    <div class="nav" style="margin-top:14px">
-      <button class="back" id="lam-lai" style="flex:1">Kiểm tra lại từ đầu</button>
-      ${NV.sdt?`<a class="go" style="flex:1;text-align:center;text-decoration:none;line-height:1.4;padding:14px" href="tel:${NV.sdt}">Gọi tư vấn</a>`:''}
+    <div class="nav" style="margin-top:14px;flex-wrap:wrap">
+      ${NV.zalo?`<a class="go" style="flex:1 1 45%;text-align:center;text-decoration:none;line-height:1.4;padding:14px" href="${NV.zalo}" target="_blank" rel="noopener">Nhắn Zalo</a>`:''}
+      ${NV.sdt?`<a class="go" style="flex:1 1 45%;text-align:center;text-decoration:none;line-height:1.4;padding:14px" href="tel:${NV.sdt}">Gọi tư vấn</a>`:''}
+      <button class="back" id="lam-lai" style="flex:1 1 100%">Kiểm tra lại từ đầu</button>
     </div>`;
 
   app.innerHTML = html;
@@ -626,7 +627,7 @@ function guiLead(){
   const xong = ()=>{
     document.getElementById('leadbox').innerHTML =
       `<div class="verdict v-ok" style="margin:0"><h2>✅ Đã ghi nhận</h2>
-       <p>Cảm ơn anh/chị. Bên em sẽ liên hệ trong thời gian sớm nhất${NV.sdt?`, hoặc anh/chị gọi trước theo số <b>${NV.sdt}</b>`:''}.</p></div>`;
+       <p>Cảm ơn anh/chị. Bên em sẽ liên hệ trong thời gian sớm nhất${NV.sdt?`, hoặc anh/chị nhắn Zalo / gọi trước theo số <b>${NV.sdt}</b>`:''}.</p></div>`;
   };
 
   if(NOI_NHAN){
