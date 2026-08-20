@@ -120,7 +120,7 @@
    Lớp 3 NGUOI_BAN   · từng nhân viên · thêm người mới = thêm một dòng
 
    Chọn lúc chạy bằng địa chỉ link:
-     ...?da=trang-cat&nv=himlam&n=fb
+     ...?da=trang-cat&nv=nam&n=fb
      da = mã dự án · nv = mã nhân viên · n = kênh (để biết khách đến từ đâu)
    Không có tham số thì dùng MAC_DINH bên dưới.
    ═══════════════════════════════════════════════════════════════ */
@@ -190,15 +190,15 @@ const DU_AN = {
 
 /* ── LỚP 3 · NGƯỜI BÁN ──────────────────────────────────────── */
 const NGUOI_BAN = {
-  'himlam' : { ten:'Him Lam', sdt:'0973319559', zalo:'https://zalo.me/0973319559' }
+  'nam' : { ten:'Trần Ngọc Nam', sdt:'0973319559', zalo:'https://zalo.me/0973319559' }
   /* ,'ten-ma': { ten:'', sdt:'', zalo:'https://zalo.me/<số>' } */
 };
 
 /* Nơi nhận thông tin khách để lại. Để trống → mở Zalo của người bán.
    Điền URL Google Apps Script vào đây thì mọi dự án, mọi nhân viên đổ chung một bảng. */
-const NOI_NHAN = '';
+const NOI_NHAN = 'https://script.google.com/macros/s/AKfycbwZN0KZv3CF1UcVUZpRk7nMPQrg6i9wns3EicIWlKLgX0s0lFxBUwI15aRygP-tziHKgQ/exec';
 
-const MAC_DINH = { duAn:'trang-cat', nguoiBan:'himlam' };
+const MAC_DINH = { duAn:'trang-cat', nguoiBan:'nam' };
 
 /* ═══════════════════════════════════════════════════════════════
    Từ đây trở xuống là phần chạy — bình thường không cần sửa
