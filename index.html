@@ -583,19 +583,21 @@ function renderKetQua(){
 function tomTat(){
   const nhan={docthan:'Độc thân',nuoicon:'Độc thân nuôi con',kethon:'Đã kết hôn'};
   const nhom={kcn:'Công nhân KCN',thap:'Thu nhập thấp đô thị',canbo:'Cán bộ công chức',llvt:'Lực lượng vũ trang',ngheo:'Hộ nghèo/cận nghèo',khac:'Chưa rõ nhóm'};
-  const nha ={khong:'Khong co nha',khac:'Co nha tinh khac',
-              hp15d:`Co nha ${DA.tinhNgan}, duoi ${CHINH_SACH.m2BinhQuan}m2/nguoi`,
-              hp15t:`Co nha ${DA.tinhNgan}, tu ${CHINH_SACH.m2BinhQuan}m2/nguoi tro len`};
+  const nha ={khong:'Không có nhà',khac:'Có nhà tỉnh khác',
+              hp15d:`Có nhà ${DA.tinhNgan}, dưới ${CHINH_SACH.m2BinhQuan}m²/người`,
+              hp15t:`Có nhà ${DA.tinhNgan}, từ ${CHINH_SACH.m2BinhQuan}m²/người trở lên`};
   const gi  ={moi:'Đã có, còn hạn',cu:'Đã có, quá 6 tháng',chua:'Chưa có'};
+  const kq  ={ok:'Đủ điều kiện',warn:'Cần đối chiếu thêm',bad:'Chưa đủ điều kiện'};
+  const ket = chamDieuKien().ket;
   return [
     `Nhóm: ${nhom[S.doiTuong]}`,
     `Nhà ở: ${nha[S.nhaO]}`,
     `Hôn nhân: ${nhan[S.honNhan]}`,
-    `Thu nhập: ${fmt(S.thuNhap)} tr/thang (tran ${fmt(TRAN[S.honNhan])} tr)`,
-    `Da huong chinh sach: ${S.daHuong==='roi'?'Roi':'Chua'}`,
-    `Giay xac nhan: ${gi[S.giay]}`,
-    S.gia?`Gia quan tam: ${fmt(S.gia)} tr, von co: ${fmt(S.von||0)} tr`:null,
-    `Ket qua: ${chamDieuKien().ket.toUpperCase()}`
+    `Thu nhập: ${fmt(S.thuNhap)} tr/tháng (trần ${fmt(TRAN[S.honNhan])} tr)`,
+    `Đã hưởng chính sách: ${S.daHuong==='roi'?'Rồi':'Chưa'}`,
+    `Giấy xác nhận: ${gi[S.giay]}`,
+    S.gia?`Giá quan tâm: ${fmt(S.gia)} tr, vốn có: ${fmt(S.von||0)} tr`:null,
+    `Kết quả: ${kq[ket]||ket}`
   ].filter(Boolean).join('\n');
 }
 
