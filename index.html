@@ -22,8 +22,26 @@
   header{background:linear-gradient(160deg,var(--brand),var(--brand-d));color:#fff;padding:22px 0 26px;margin-bottom:-18px}
   header h1{margin:0 0 6px;font-size:21px;line-height:1.3;font-weight:700}
   header p{margin:0;font-size:14px;opacity:.9}
-  .disclaimer{margin-top:14px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);
-    border-radius:10px;padding:9px 11px;font-size:12.5px;line-height:1.5}
+  /* Dat o CUOI trang, khong phai trong header — nen dung nen sang */
+  .disclaimer{margin-top:24px;background:#eef1f4;border:1px solid var(--line);color:var(--mute);
+    border-radius:10px;padding:11px 13px;font-size:12.5px;line-height:1.6}
+  .disclaimer b{color:var(--ink)}
+
+  /* Loi moi goi/nhan Zalo, hien o MOI cau hoi — khach bi tac la goi duoc ngay */
+  .hoingay{margin-top:12px;display:flex;flex-wrap:wrap;align-items:center;gap:9px;
+    background:#eff5fc;border:1px solid #d3e2f3;border-radius:12px;padding:11px 13px;
+    font-size:13.5px;line-height:1.45;color:var(--mute)}
+  .hoingay b{color:var(--ink)}
+  .hoingay .lk{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+  .hoingay a{display:inline-block;text-decoration:none;font-weight:700;font-size:13.5px;
+    padding:8px 13px;border-radius:9px;border:1.5px solid var(--brand);
+    color:var(--brand);background:#fff;white-space:nowrap}
+  .hoingay a:active{background:var(--brand);color:#fff}
+  @media(max-width:430px){
+    .hoingay{gap:8px}
+    .hoingay .lk{margin-left:0;width:100%}
+    .hoingay a{flex:1 1 45%;text-align:center}
+  }
 
   .bar{height:5px;background:var(--line);border-radius:99px;overflow:hidden;margin:26px 0 16px}
   .bar i{display:block;height:100%;background:var(--brand);width:0;transition:width .3s ease}
@@ -96,11 +114,6 @@
     <h1>Anh/chị có mua được nhà ở xã hội không?</h1>
     <p>6 câu hỏi · khoảng 1 phút · biết ngay đủ hay thiếu gì</p>
     <p id="tenDuAn" style="font-weight:600;opacity:.95"></p>
-    <div class="disclaimer">
-      Công cụ tham khảo do nhân viên kinh doanh tự lập để sàng lọc ban đầu.
-      Đây <b>không phải</b> văn bản chính thức của chủ đầu tư hay cơ quan nhà nước.
-      Quyết định cuối cùng thuộc về Sở Xây dựng khi thẩm định hồ sơ.
-    </div>
   </div>
 </header>
 
@@ -109,6 +122,12 @@
   <div id="app"></div>
 
   <footer id="canCu"></footer>
+
+  <div class="disclaimer">
+    Công cụ tham khảo do nhân viên kinh doanh tự lập để sàng lọc ban đầu.
+    Đây <b>không phải</b> văn bản chính thức của chủ đầu tư hay cơ quan nhà nước.
+    Quyết định cuối cùng thuộc về Sở Xây dựng khi thẩm định hồ sơ.
+  </div>
 </div>
 
 <script>
@@ -298,6 +317,31 @@ const STEPS = [
 }
 ];
 
+/* ── Lời mời gọi/nhắn, hiện ở MỌI câu hỏi ────────────────────
+   Khách bí ở câu nào là gọi được ngay tại câu đó, không phải trả lời hết
+   6 câu mới thấy số. Sửa lời mời thì sửa ở đây — mỗi câu một dòng.      */
+const LOI_HOI = {
+  doiTuong:'Không chắc mình thuộc nhóm nào?',
+  nhaO    :'Nhà đứng tên bố mẹ, nhà chung sổ, đang ở trọ… khó chọn?',
+  honNhan :'Trường hợp của anh/chị hơi khác?',
+  thuNhap :'Lương có thưởng, có tăng ca — tính thế nào cho đúng?',
+  daHuong :'Không nhớ đã từng được hỗ trợ nhà ở hay chưa?',
+  giay    :'Chưa rõ giấy này xin ở đâu?',
+  gia     :'Muốn biết giá đợt này và mức vay thực tế?'
+};
+
+function khoiHoiNgay(key){
+  if(!NV.sdt && !NV.zalo) return '';
+  const loi = LOI_HOI[key] || 'Chưa rõ chọn mục nào?';
+  return `<div class="hoingay">
+      <span><b>${loi}</b> Hỏi trực tiếp cho chắc.</span>
+      <span class="lk">
+        ${NV.sdt ?`<a href="tel:${NV.sdt}">Gọi tư vấn</a>`:''}
+        ${NV.zalo?`<a href="${NV.zalo}" target="_blank" rel="noopener">Nhắn Zalo</a>`:''}
+      </span>
+    </div>`;
+}
+
 /* ── Vẽ giao diện ────────────────────────────────────────────── */
 function render(){
   bar.style.width = Math.round(step/STEPS.length*100)+'%';
@@ -347,7 +391,8 @@ function render(){
         ${st.type!=='choice'?`<button class="go" id="next">${st.type==='money'?'Xem kết quả':'Tiếp tục'}</button>`:''}
         ${st.type==='money'?'<button class="back" id="skip">Bỏ qua</button>':''}
       </div>
-    </div>`;
+    </div>
+    ${khoiHoiNgay(st.key)}`;
 
   app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
     S[STEPS[step].key]=b.dataset.v; step++; render();
