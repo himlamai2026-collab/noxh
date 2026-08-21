@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://ongchunoxh.com/sitemap.xml
