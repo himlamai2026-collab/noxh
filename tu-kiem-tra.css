@@ -1,0 +1,98 @@
+  :root{
+    --bg:#f4f6f8; --card:#fff; --ink:#16202c; --mute:#5b6b7c; --line:#dde4ea;
+    --brand:#0b5cab; --brand-d:#084584; --ok:#0f8a4c; --okbg:#e8f6ee;
+    --warn:#a06a00; --warnbg:#fdf3e0; --bad:#c02626; --badbg:#fcecec;
+    --r:14px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    padding:0 0 48px}
+  .wrap{max-width:620px;margin:0 auto;padding:0 14px}
+
+  header{background:linear-gradient(160deg,var(--brand),var(--brand-d));color:#fff;padding:22px 0 26px;margin-bottom:-18px}
+  header h1{margin:0 0 6px;font-size:21px;line-height:1.3;font-weight:700}
+  header p{margin:0;font-size:14px;opacity:.9}
+  /* Dat o CUOI trang, khong phai trong header — nen dung nen sang */
+  .disclaimer{margin-top:24px;background:#eef1f4;border:1px solid var(--line);color:var(--mute);
+    border-radius:10px;padding:11px 13px;font-size:12.5px;line-height:1.6}
+  .disclaimer b{color:var(--ink)}
+
+  /* Loi moi goi/nhan Zalo, hien o MOI cau hoi — khach bi tac la goi duoc ngay */
+  .hoingay{margin-top:12px;display:flex;flex-wrap:wrap;align-items:center;gap:9px;
+    background:#eff5fc;border:1px solid #d3e2f3;border-radius:12px;padding:11px 13px;
+    font-size:13.5px;line-height:1.45;color:var(--mute)}
+  .hoingay b{color:var(--ink)}
+  .hoingay .lk{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+  .hoingay a{display:inline-block;text-decoration:none;font-weight:700;font-size:13.5px;
+    padding:8px 13px;border-radius:9px;border:1.5px solid var(--brand);
+    color:var(--brand);background:#fff;white-space:nowrap}
+  .hoingay a:active{background:var(--brand);color:#fff}
+  @media(max-width:430px){
+    .hoingay{gap:8px}
+    .hoingay .lk{margin-left:0;width:100%}
+    .hoingay a{flex:1 1 45%;text-align:center}
+  }
+
+  .bar{height:5px;background:var(--line);border-radius:99px;overflow:hidden;margin:26px 0 16px}
+  .bar i{display:block;height:100%;background:var(--brand);width:0;transition:width .3s ease}
+  .stepno{font-size:12.5px;color:var(--mute);letter-spacing:.03em;text-transform:uppercase;margin-bottom:8px}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;
+    box-shadow:0 1px 3px rgba(16,32,48,.05)}
+  h2{margin:0 0 6px;font-size:18.5px;line-height:1.35}
+  .hint{margin:0 0 15px;font-size:13.5px;color:var(--mute)}
+
+  .opt{display:block;width:100%;text-align:left;background:#fbfcfd;border:1.5px solid var(--line);
+    border-radius:11px;padding:13px 14px;margin-bottom:9px;font:inherit;font-size:15.5px;color:var(--ink);cursor:pointer}
+  .opt:hover{border-color:#b9c9d8;background:#f7fafc}
+  .opt.sel{border-color:var(--brand);background:#eef5fc;font-weight:600}
+  .opt small{display:block;font-weight:400;font-size:12.5px;color:var(--mute);margin-top:3px;line-height:1.45}
+
+  label.fl{display:block;font-size:14px;font-weight:600;margin:0 0 6px}
+  input[type=number],input[type=text],input[type=tel]{width:100%;padding:12px 13px;font:inherit;
+    border:1.5px solid var(--line);border-radius:10px;background:#fbfcfd}
+  input:focus{outline:none;border-color:var(--brand);background:#fff}
+  .unit{display:flex;align-items:center;gap:9px}
+  .unit span{font-size:14px;color:var(--mute);white-space:nowrap}
+
+  .nav{display:flex;gap:9px;margin-top:16px}
+  button.go{flex:1;background:var(--brand);color:#fff;border:0;border-radius:11px;padding:14px;
+    font:inherit;font-weight:700;font-size:16px;cursor:pointer}
+  button.go:disabled{background:#a9bccd;cursor:not-allowed}
+  button.back{background:#fff;color:var(--mute);border:1.5px solid var(--line);border-radius:11px;
+    padding:14px 18px;font:inherit;cursor:pointer}
+
+  .verdict{border-radius:var(--r);padding:18px;margin-bottom:14px;border:1.5px solid}
+  .verdict h2{font-size:20px;margin:0 0 5px}
+  .verdict p{margin:0;font-size:14.5px}
+  .v-ok{background:var(--okbg);border-color:#b6e0c8;color:#0a5c33}
+  .v-warn{background:var(--warnbg);border-color:#f0d9a8;color:#6d4800}
+  .v-bad{background:var(--badbg);border-color:#f2c2c2;color:#8f1a1a}
+
+  ul.checks{list-style:none;padding:0;margin:0}
+  ul.checks li{display:flex;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14.5px;line-height:1.55}
+  ul.checks li:last-child{border-bottom:0}
+  ul.checks b{font-weight:700}
+  .ic{flex:0 0 20px;font-size:16px;line-height:1.4}
+  .sub{display:block;color:var(--mute);font-size:13px;margin-top:2px}
+
+  .money{background:#f0f5fa;border:1px solid #d4e2ef;border-radius:11px;padding:14px;margin-top:6px}
+  .money table{width:100%;border-collapse:collapse;font-size:14.5px}
+  .money td{padding:6px 0}
+  .money td:last-child{text-align:right;font-weight:700;white-space:nowrap}
+  .money .big{font-size:19px;color:var(--brand-d)}
+
+  .note{font-size:13px;color:var(--mute);line-height:1.6;margin-top:12px;
+    background:#fafbfc;border-left:3px solid var(--line);padding:9px 12px;border-radius:0 8px 8px 0}
+
+  .consent{display:flex;gap:10px;align-items:flex-start;font-size:12.8px;line-height:1.6;
+    color:var(--mute);margin:14px 0 12px}
+  .consent input{flex:0 0 19px;width:19px;height:19px;margin-top:2px;accent-color:var(--brand)}
+
+  h3.sec{font-size:15px;margin:22px 0 10px;letter-spacing:.02em;text-transform:uppercase;color:var(--mute)}
+  footer{margin-top:26px;font-size:12px;color:var(--mute);line-height:1.7}
+  footer a{color:var(--brand)}
+  .tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:99px;
+    background:#eef2f6;color:var(--mute);margin-left:5px;vertical-align:middle}
+  .hide{display:none}
