@@ -3,49 +3,79 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Tự kiểm tra điều kiện mua nhà ở xã hội Tràng Cát (Hải Phòng)</title>
-<meta name="description" content="Vài câu hỏi, khoảng 1 phút — biết ngay anh/chị có đủ điều kiện mua nhà ở xã hội Happy Home Tràng Cát hay chưa, thiếu gì và phải làm giấy tờ nào.">
+<title>Nhà ở xã hội Vinhomes Happy Home — tự kiểm tra điều kiện mua</title>
+<meta name="description" content="Chọn dự án nhà ở xã hội Happy Home của Vinhomes ở miền Bắc và tự kiểm tra xem mình đủ điều kiện mua chưa — khoảng 1 phút. Kèm tin và hướng dẫn hồ sơ, mỗi con số ghi rõ nguồn và ngày tra.">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://ongchunoxh.com/">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="vi_VN">
 <meta property="og:url" content="https://ongchunoxh.com/">
-<meta property="og:title" content="Anh/chị có mua được nhà ở xã hội Tràng Cát không?">
-<meta property="og:description" content="Trả lời vài câu hỏi trong khoảng 1 phút để biết mình đủ hay thiếu điều kiện, và còn phải làm giấy tờ nào.">
+<meta property="og:title" content="Anh/chị có mua được nhà ở xã hội Happy Home không?">
+<meta property="og:description" content="Chọn dự án, trả lời vài câu trong khoảng 1 phút để biết mình đủ hay thiếu điều kiện, và còn phải làm giấy tờ nào.">
 <link rel="stylesheet" href="tu-kiem-tra.css">
 </head>
 <body>
 
 <header>
   <div class="wrap">
-    <h1>Anh/chị có mua được nhà ở xã hội không?</h1>
-    <p><span id="soCau">7 câu hỏi</span> · khoảng 1 phút · biết ngay đủ hay thiếu gì</p>
-    <p id="tenDuAn" style="font-weight:600;opacity:.95"></p>
+    <h1>Nhà ở xã hội Happy Home của Vinhomes</h1>
+    <p>Chọn dự án để tự kiểm tra điều kiện mua · khoảng 1 phút · biết ngay đủ hay thiếu gì</p>
   </div>
 </header>
 
-<div class="wrap">
-  <div class="bar"><i id="bar"></i></div>
-  <div id="app"></div>
+<div class="wrap trangchu">
 
-  <footer id="canCu"></footer>
+  <section class="khoi">
+    <h2>Anh/chị có mua được không?</h2>
+
+    <!-- Bản tĩnh bên dưới dành cho Google và máy không chạy JS.
+         trang-chu.js vẽ đè lên bằng số liệu thật trong du-lieu.js.
+         ⚠️ CỐ Ý không ghi trạng thái đợt hồ sơ ở đây — đó là thứ hay đổi,
+            viết tay vào HTML là có ngày nói ngược với công cụ.
+         ⚠️ Thêm dự án thứ 3: nhớ thêm một dòng <a> vào đây nữa,
+            không thì dự án mới chỉ hiện với người có JS. -->
+    <div id="dsDuAn">
+      <a class="da" href="/trang-cat/">
+        <b>Happy Home Tràng Cát</b>
+        <span class="noi">phường Tràng Cát, TP Hải Phòng</span>
+        <span class="di">Tự kiểm tra điều kiện →</span>
+      </a>
+      <a class="da" href="/pho-hien/">
+        <b>Happy Home Phố Hiến (Vinhomes)</b>
+        <span class="noi">phường Phố Hiến, tỉnh Hưng Yên</span>
+        <span class="di">Tự kiểm tra điều kiện →</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="khoi">
+    <h2>Tin &amp; hướng dẫn nhà ở xã hội</h2>
+    <div id="dsBai"></div>
+    <a class="xemhet" href="/bai-viet/">Xem tất cả bài viết →</a>
+  </section>
+
+  <div class="lienhe" id="lienHe"></div>
+
+  <footer>
+    <b id="tenNV">Trần Ngọc Nam</b> · nhân viên kinh doanh, Vinhomes Happy Home
+  </footer>
 
   <div class="disclaimer">
-    Công cụ tham khảo do nhân viên kinh doanh tự lập để sàng lọc ban đầu.
-    Đây <b>không phải</b> văn bản chính thức của chủ đầu tư hay cơ quan nhà nước.
+    Trang cá nhân của nhân viên kinh doanh. Đây <b>không phải</b> trang chính thức
+    của chủ đầu tư hay cơ quan nhà nước, và công cụ tự kiểm tra chỉ để sàng lọc ban đầu.
     Quyết định cuối cùng thuộc về Sở Xây dựng khi thẩm định hồ sơ.
     <br><br>
-    Quan tâm dự án khác: <a href="/pho-hien/">tự kiểm tra điều kiện mua nhà ở xã hội Phố Hiến (Hưng Yên)</a>
-    · <a href="/bai-viet/">bài viết về điều kiện mua nhà ở xã hội</a>
+    Mọi con số trên trang đều ghi rõ <b>nguồn và ngày tra</b>. Chỗ nào chưa tra được
+    thì viết thẳng là chưa xác minh, không đoán.
   </div>
 </div>
 
 <script>
-/* Trang này chạy dự án nào — khai TRƯỚC khi nạp tu-kiem-tra.js.
-   Cùng một bộ mã chạy cho mọi dự án; đổi dự án = đổi đúng dòng dưới đây. */
-window.TRANG = { duAn:'trang-cat', nguoiBan:'nam' };
+/* Trang chủ không chạy dự án nào, chỉ cần biết nhân viên nào để hiện số gọi/Zalo. */
+window.TRANG = { nguoiBan:'nam' };
 </script>
-<script src="tu-kiem-tra.js"></script>
+<script src="du-lieu.js"></script>
+<script src="trang-chu.js"></script>
 
 </body>
 </html>

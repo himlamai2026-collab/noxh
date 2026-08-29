@@ -1,137 +1,14 @@
 /* ═══════════════════════════════════════════════════════════════
-   BA LỚP DỮ LIỆU — sửa đúng lớp, không sửa lẫn sang lớp khác.
+   PHẦN CHẠY CỦA CÔNG CỤ TỰ KIỂM TRA — bình thường không cần sửa.
 
-   Lớp 1 CHINH_SACH  · luật, dùng chung mọi dự án · đổi khi có nghị định mới
-   Lớp 2 DU_AN       · từng dự án · thêm dự án mới = thêm một khối
-   Lớp 3 NGUOI_BAN   · từng nhân viên · thêm người mới = thêm một dòng
-
-   Chọn lúc chạy bằng địa chỉ link:
-     ...?da=trang-cat&nv=nam&n=fb
-     da = mã dự án · nv = mã nhân viên · n = kênh (để biết khách đến từ đâu)
-   Không có tham số thì dùng MAC_DINH bên dưới.
+   ⚠️ Trang HTML phải nạp theo ĐÚNG thứ tự này, thiếu bước nào là trắng trang:
+        <script>window.TRANG = { duAn:'…', nguoiBan:'nam' };</script>
+        <script src="du-lieu.js"></script>     ← số liệu
+        <script src="tu-kiem-tra.js"></script> ← file này
    ═══════════════════════════════════════════════════════════════ */
 
-/* ── LỚP 1 · CHÍNH SÁCH ─────────────────────────────────────── */
-const CHINH_SACH = {
-  traNgay : '17/08/2026',
-  hetHan  : '2026-12-31',          // qua mốc này trang tự hiện cảnh báo phải tra lại
-
-  /* Trần thu nhập NỀN toàn quốc — triệu đồng/tháng, thực nhận bình quân 12 tháng.
-     Nghị định 136/2026/NĐ-CP, hiệu lực 07/4/2026.
-     Lịch sử: 15/30 (NĐ 100/2024) → 20/30/40 (NĐ 261/2025) → 25/35/50 (NĐ 136/2026).
-     Ba lần đổi trong hai năm — luôn tra lại trước khi tin con số này. */
-  tranNen : { docthan:25, nuoicon:35, kethon:50 },
-  tranNguon : 'Nghị định 136/2026/NĐ-CP, hiệu lực 07/4/2026 — đã đối chiếu bản gốc có chữ ký, đọc 24/08/2026',
-
-  /* Vay ưu đãi Ngân hàng Chính sách xã hội */
-  vay : { tyLeToiDa:0.80, namToiDa:25, laiSuat:5.4 },
-
-  /* Diện tích bình quân tối đa vẫn được coi là chưa có nhà */
-  m2BinhQuan : 15,
-
-  /* Điều kiện nhà ở xét theo đơn vị hành chính nào */
-  phamViNhaO : 'Điều 29 NĐ 100/2024/NĐ-CP sửa bởi Điều 32 NĐ 54/2026/NĐ-CP — xét theo <b>tỉnh, thành phố trực thuộc trung ương nơi có dự án</b>'
-};
-
-/* ── LỚP 2 · DỰ ÁN ──────────────────────────────────────────── */
-const DU_AN = {
-
-  'trang-cat': {
-    ten     : 'Happy Home Tràng Cát',
-    diaChi  : 'phường Tràng Cát, TP Hải Phòng',
-    tinh    : 'thành phố Hải Phòng',      // đơn vị hành chính xét điều kiện nhà ở
-    tinhNgan: 'Hải Phòng',
-
-    heSo      : 1.16,                      // nhân với tranNen ra trần của địa phương
-    heSoNguon : 'Quyết định 55/2026/QĐ-UBND, hiệu lực 01/8/2026',
-
-    /* Cảnh báo riêng của địa bàn — để trống nếu dự án khác không có */
-    luuYNhaO : 'Lưu ý: Hải Dương đã sáp nhập vào Hải Phòng từ 01/7/2025. Nhà ở Chí Linh, Kinh Môn, Bình Giang… nay tính là nhà tại Hải Phòng.',
-    luuYNguon: 'Hải Phòng sáp nhập Hải Dương từ 01/7/2025 — Nghị quyết 202/2025/QH15',
-
-    /* 'dang-mo' = đang có đợt tiếp nhận hồ sơ → giục khách làm giấy cho kịp
-       'chua-mo' = chưa công bố đợt nào        → khuyên chuẩn bị, KHÔNG giục xin giấy
-       Giấy xác nhận điều kiện nhà ở chỉ sống 06 tháng, xin sớm quá là phải xin lại. */
-    giaiDoan : 'dang-mo',
-
-    laiDuAn  : 5.9,                        // gói lãi suất riêng của dự án, null nếu chưa có
-    vanPhong : 'Vincom Plaza Ngô Quyền',
-
-    /* Giá — VnExpress 25/12/2025 */
-    gia      : '21,2–23,7 triệu/m² · căn nhỏ nhất khoảng 600 triệu, lớn nhất khoảng 1,64 tỷ',
-    giaNguon : 'VnExpress, 25/12/2025',
-    giaGoiY  : 750,                        // số điền sẵn ở ô giá, triệu đồng
-
-    /* Tiến độ đóng tiền — market.vinhomes.vn, tra 8/2026 */
-    thanhToan: '30% khi ký hợp đồng · 10% mỗi đợt vào ngày 60 / 120 / 180 / 240 · 25% khi bàn giao (kèm VAT và phí bảo trì) · 5% khi có sổ',
-    ttNguon  : 'market.vinhomes.vn — đơn vị phân phối, tra tháng 8/2026'
-  },
-
-  /* ── Happy Home Phố Hiến — thêm 24/08/2026 ───────────────────
-     Dự án MỚI XONG MÓNG: chưa công bố giá, chưa có đợt nhận hồ sơ.
-     Công cụ này ở đây chỉ làm ĐÚNG MỘT VIỆC — sàng điều kiện.
-     🔴 Tuyệt đối không điền giá vào khối này cho tới khi Vinhomes
-        công bố chính thức: 20 tr/m² và 13–16 tr/m² đang trôi trên
-        mạng là GIÁ CỦA DỰ ÁN KHÁC.                                 */
-  'pho-hien': {
-    ten     : 'Happy Home Phố Hiến (Vinhomes)',
-    diaChi  : 'phường Phố Hiến, tỉnh Hưng Yên',
-    tinh    : 'tỉnh Hưng Yên',
-    tinhNgan: 'Hưng Yên',
-
-    /* heSo = 1 nghĩa là DÙNG THẲNG MỨC NỀN, không phải "hệ số bằng 1".
-       Căn cứ: NĐ 136/2026 Điều 1 khoản 1 điểm d — UBND cấp tỉnh *được*
-       quyết định hệ số (quyền tùy chọn), trần = thu nhập bình quân đầu
-       người của tỉnh ÷ của cả nước. Tra 24/08/2026 chưa thấy Hưng Yên
-       ban hành Quyết định nào. Tỉnh chỉ được NỚI LÊN, không được siết
-       xuống → sàng bằng mức nền chỉ có thể sai theo hướng nhẹ (bảo một
-       người đủ điều kiện là hãy chờ hỏi lại), không bao giờ sai theo
-       hướng chết người (bảo một người không đủ là đã đủ).
-       🔴 KHÔNG mượn hệ số 1,16 của Hải Phòng sang đây. */
-    heSo      : 1,
-    heSoNguon : '⚠️ chưa thấy Hưng Yên ban hành Quyết định hệ số riêng (tra 24/08/2026) — đang áp mức nền toàn quốc; nếu tỉnh ban hành thì chỉ có thể cao hơn mức này',
-
-    luuYNhaO : 'Lưu ý: Thái Bình đã sáp nhập vào Hưng Yên từ 01/7/2025. Nhà ở tại Vũ Thư, Kiến Xương, Tiền Hải, TP Thái Bình cũ… nay tính là nhà tại Hưng Yên.',
-    luuYNguon: 'Hưng Yên sáp nhập Thái Bình từ 01/7/2025 — Nghị quyết 202/2025/QH15',
-
-    giaiDoan : 'chua-mo',                  // mới xong móng, chưa công bố đợt nhận hồ sơ
-
-    laiDuAn  : null,                       // chưa có gói lãi suất riêng của dự án
-    vanPhong : '',                         // chưa có văn phòng bán hàng công bố
-
-    /* 🔴 Để trống có chủ đích — xem chú thích đầu khối */
-    gia      : '',
-    giaNguon : '',
-    giaGoiY  : 0,
-
-    thanhToan: '',
-    ttNguon  : ''
-  }
-
-  /* ── MẪU THÊM DỰ ÁN MỚI — chép khối dưới, bỏ dấu chú thích, điền đủ ──
-  ,'ma-du-an': {
-    ten:'', diaChi:'', tinh:'', tinhNgan:'',
-    heSo:null, heSoNguon:'',        // ⚠️ phải tra quyết định của tỉnh đó, KHÔNG mượn hệ số 1,16
-                                    //    tra rồi mà tỉnh chưa ban hành → điền 1 (dùng mức nền), xem khối 'pho-hien'
-    luuYNhaO:'', luuYNguon:'',
-    giaiDoan:'chua-mo',             // đổi sang 'dang-mo' khi dự án mở đợt nhận hồ sơ
-    laiDuAn:null, vanPhong:'',
-    gia:'', giaNguon:'', giaGoiY:0,
-    thanhToan:'', ttNguon:''
-  }
-  ── heSo để null thì công cụ tự khoá lại, không cho khách trả lời sai ── */
-};
-
-/* ── LỚP 3 · NGƯỜI BÁN ──────────────────────────────────────── */
-const NGUOI_BAN = {
-  'nam' : { ten:'Trần Ngọc Nam', sdt:'0973319559', zalo:'https://zalo.me/0973319559' }
-  /* ,'ten-ma': { ten:'', sdt:'', zalo:'https://zalo.me/<số>' } */
-};
-
-/* Nơi nhận thông tin khách để lại. Để trống → mở Zalo của người bán.
-   Điền URL Google Apps Script vào đây thì mọi dự án, mọi nhân viên đổ chung một bảng. */
-const NOI_NHAN = 'https://script.google.com/macros/s/AKfycbwZN0KZv3CF1UcVUZpRk7nMPQrg6i9wns3EicIWlKLgX0s0lFxBUwI15aRygP-tziHKgQ/exec';
-
+/* Mỗi trang HTML tự khai dự án mặc định của mình bằng window.TRANG trước khi
+   nạp file này. Không khai thì rơi về Tràng Cát. */
 /* Mỗi trang HTML tự khai dự án mặc định của mình bằng window.TRANG trước khi
    nạp file này. Không khai thì rơi về Tràng Cát. */
 const MAC_DINH = window.TRANG || { duAn:'trang-cat', nguoiBan:'nam' };
@@ -514,6 +391,16 @@ function renderKetQua(){
       html += `<div class="note">Chính sách hỗ trợ nhà ở chỉ được hưởng một lần. Đây là điều kiện cứng, không có ngoại lệ.
         Nếu anh/chị chưa chắc lần trước có phải là "chính sách hỗ trợ nhà ở" theo đúng nghĩa của luật hay không thì nên hỏi lại.</div>`;
     }
+    /* Chỉ có đúng ba đường rơi vào nhánh này: vượt trần thu nhập · đã có nhà ·
+       đã hưởng chính sách. Cả ba đều là ràng buộc RIÊNG của nhà ở xã hội —
+       người bị loại ở đây phần lớn vẫn mua được nhà, chỉ là không mua theo diện này.
+       Trước đây màn hình này chỉ nói "chờ quy định nới", với họ gần như vô nghĩa. */
+    html += `<div class="note">Ba điều kiện có thể vướng ở trên — trần thu nhập, đã có nhà,
+      đã hưởng chính sách — là ràng buộc <b>riêng của nhà ở xã hội</b>. Nhà ở thương mại
+      không xét thu nhập, không xét đã có nhà, cũng không phải bốc thăm. Nếu anh/chị muốn
+      nghe về hướng đó, cứ để lại số — em hỏi giúp bên phụ trách rồi báo lại.
+      <br>Em phụ trách mảng nhà ở xã hội, nên phần thương mại em nối máy chứ không tự báo giá.</div>`;
+
     html += `<div class="note">Điều kiện có thể thay đổi, và hoàn cảnh của anh/chị cũng vậy.
       Nếu muốn, để lại số điện thoại — khi có đợt mở bán mới hoặc quy định được nới, bên em sẽ báo lại.</div></div>`;
   }
@@ -523,7 +410,7 @@ function renderKetQua(){
     <div class="card" id="leadbox">
       <p class="hint" style="margin-bottom:14px">
         ${ket==='bad'
-          ? 'Không bắt buộc. Để lại số nếu anh/chị muốn được báo khi quy định thay đổi hoặc có đợt mở bán mới.'
+          ? 'Không bắt buộc. Để lại số nếu anh/chị muốn được báo khi quy định thay đổi, khi có đợt mở bán mới, hoặc muốn nghe về hướng nhà ở thương mại.'
           : (DANG_MO
               ? 'Để lại số điện thoại để nhận bản checklist giấy tờ, địa chỉ nộp từng loại giấy và lịch các mốc quan trọng của đợt này.'
               : 'Dự án chưa công bố giá và chưa mở đợt nhận hồ sơ. Để lại số điện thoại để nhận bản checklist giấy tờ, và được báo ngay khi có lịch tiếp nhận — người chuẩn bị trước là người kịp đợt đầu.')}
@@ -535,7 +422,7 @@ function renderKetQua(){
       <label class="consent">
         <input type="checkbox" id="dongy">
         <span>Tôi đồng ý để <b>${NV.ten}</b> — nhân viên kinh doanh dự án ${DA.ten}, ${DA.diaChi} —
-        liên hệ với tôi qua số điện thoại trên để tư vấn về việc mua nhà ở xã hội.
+        liên hệ với tôi qua số điện thoại trên để tư vấn về việc mua ${ket==='bad'?'nhà ở':'nhà ở xã hội'}.
         Thông tin chỉ dùng cho mục đích này, không chuyển cho bên thứ ba, và tôi có thể yêu cầu xoá bất cứ lúc nào
         bằng cách nhắn lại số điện thoại đó.</span>
       </label>
