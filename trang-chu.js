@@ -105,7 +105,9 @@
 
     var h = '';
     if (nv.zalo) h += '<a href="' + esc(nv.zalo) + '" target="_blank" rel="noopener">Nhắn Zalo hỏi trực tiếp</a>';
-    if (nv.sdt) h += '<a href="tel:' + esc(nv.sdt) + '">Gọi ' + esc(nv.sdt) + '</a>';
+    /* Cố ý KHÔNG in số ra chữ — trùng cách công cụ tự kiểm tra vẫn làm.
+       Bấm vẫn gọi được vì số nằm trong href tel:. */
+    if (nv.sdt) h += '<a href="tel:' + esc(nv.sdt) + '">Gọi tư vấn viên</a>';
     o.innerHTML = h;
 
     var ten = document.getElementById('tenNV');
