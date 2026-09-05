@@ -135,7 +135,7 @@ const DU_AN = {
 
 /* ── LỚP 3 · NGƯỜI BÁN ──────────────────────────────────────── */
 const NGUOI_BAN = {
-  'nam' : { ten:'Trần Ngọc Nam', sdt:'0973319559', zalo:'https://zalo.me/0973319559' }
+  'nam' : { ten:'Trần Ngọc Nam', sdt:'0879388988', zalo:'https://zalo.me/0879388988' }
   /* ,'ten-ma': { ten:'', sdt:'', zalo:'https://zalo.me/<số>' } */
 };
 
