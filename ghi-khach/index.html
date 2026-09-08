@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ghi khách — nội bộ</title>
+<!-- Trang nội bộ cho người bán, KHÔNG phải trang cho khách.
+     noindex + robots.txt chặn + cố ý KHÔNG có trong sitemap.xml.
+     Nó không chứa dữ liệu khách nào — chỉ là cái phễu đổ vào Sheet,
+     đúng cái /exec vốn đã nằm công khai trong du-lieu.js, nên không hở thêm gì. -->
+<meta name="robots" content="noindex,nofollow">
+<link rel="stylesheet" href="/tu-kiem-tra.css">
+<style>
+  .card + .card{margin-top:14px}
+  label{display:block;font-weight:700;font-size:14px;margin:14px 0 6px}
+  label:first-of-type{margin-top:0}
+  input[type=tel],input[type=text],textarea{
+    width:100%;padding:12px 13px;font:inherit;font-size:16px;
+    border:1.5px solid var(--line);border-radius:10px;background:#fbfcfd;color:var(--ink)}
+  input:focus,textarea:focus{outline:none;border-color:var(--brand);background:#fff}
+  textarea{min-height:74px;resize:vertical;font-size:15px}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+  .chips button{font:inherit;font-size:13px;padding:7px 11px;border-radius:99px;cursor:pointer;
+    border:1.5px solid var(--line);background:#fff;color:var(--mute)}
+  .chips button.on{border-color:var(--brand);background:var(--brand);color:#fff;font-weight:700}
+  .luu{width:100%;margin-top:20px;padding:15px;font:inherit;font-size:17px;font-weight:700;
+    border:0;border-radius:12px;background:var(--brand);color:#fff;cursor:pointer}
+  .luu:disabled{opacity:.55}
+  .loi{margin-top:10px;font-size:13.5px;color:var(--bad);font-weight:700;min-height:1px}
+  .dong{display:flex;gap:9px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+  .dong:last-child{border-bottom:0}
+  .dong .tt{flex:0 0 auto;font-size:15px;line-height:1.4}
+  .dong .noi{flex:1 1 auto;min-width:0}
+  .dong b{display:block;font-size:15px}
+  .dong small{color:var(--mute);font-size:12.5px;display:block;margin-top:2px;word-break:break-word}
+  .dong .lai{flex:0 0 auto;font:inherit;font-size:12.5px;font-weight:700;padding:6px 10px;
+    border-radius:8px;border:1.5px solid var(--bad);color:var(--bad);background:#fff;cursor:pointer}
+  .trong{color:var(--mute);font-size:13.5px;margin:0}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>Ghi khách để lại SĐT</h1>
+    <p>Trang nội bộ · điền xong bấm Lưu là rơi thẳng vào Sheet khách</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="card">
+    <label for="sdt">Số điện thoại <span style="color:var(--bad)">*</span></label>
+    <input id="sdt" type="tel" inputmode="numeric" autocomplete="off" placeholder="0912345678">
+
+    <label for="ten">Tên (tên FB cũng được)</label>
+    <input id="ten" type="text" autocomplete="off" placeholder="Nguyễn Văn A">
+
+    <label for="nguon">Gặp ở đâu</label>
+    <input id="nguon" type="text" autocomplete="off" placeholder="nhóm NOXH Hưng Yên">
+    <div class="chips" id="chipNguon"></div>
+
+    <label>Dự án</label>
+    <div class="chips" id="chipDuAn"></div>
+
+    <label for="ghiChu">Khách nói gì (không bắt buộc)</label>
+    <textarea id="ghiChu" placeholder="Hỏi còn căn 2PN không, đang thuê trọ ở Hưng Yên"></textarea>
+
+    <button class="luu" id="luu">Lưu vào Sheet</button>
+    <p class="loi" id="loi"></p>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:16px;margin:0 0 4px">Đã ghi hôm nay</h2>
+    <p class="hint" style="margin:0 0 8px">Lưu sẵn trong máy trước rồi mới bắn lên Sheet — mất mạng cũng không mất khách.</p>
+    <div id="lichSu"></div>
+  </div>
+
+  <div class="disclaimer">
+    <b>Dấu ✅</b> là Sheet đã nhận. <b>Dấu ⏳</b> là đã gửi nhưng máy chưa đọc được lời xác nhận —
+    mở Sheet soát rồi bấm <b>Gửi lại</b> nếu thiếu (gửi lại hai lần thì Sheet có hai dòng, xoá bớt một).
+    <b>Dấu ⚠️</b> là chưa đi được, số vẫn nằm trong máy, bấm Gửi lại khi có mạng.
+  </div>
+
+</div>
+
+<script src="/du-lieu.js"></script>
+<script>
+/* Trang này KHÔNG tự giữ link Apps Script — nó dùng NOI_NHAN trong du-lieu.js,
+   để đổi link chỉ phải sửa một chỗ. Thiếu du-lieu.js thì báo ngay, đừng im. */
+var KHO = 'ghi-khach-v1';
+var NGUON_SAN = ['nhóm NOXH Hưng Yên','nhóm đồng hương','bình luận bài FB','nhắn tin riêng','Zalo','người quen giới thiệu'];
+var DU_AN = [['pho-hien','Phố Hiến'],['trang-cat','Tràng Cát']];
+var duAnChon = 'pho-hien';
+
+function $(id){ return document.getElementById(id); }
+
+/* Cột "Kênh" là thứ dùng để đo cuối tháng chỗ nào ra khách. Khách gõ tay mà trộn
+   chung mã với khách trang web tự đổ về là hỏng phép đo → mọi dòng ở đây gắn tiền tố "tay-". */
+function maKenh(s){
+  s = (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D')
+      .toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+  return 'tay-' + (s || 'khong-ro');
+}
+
+function veChip(oId, ds, layGiaTri, dangChon, khiBam){
+  var o = $(oId); o.innerHTML = '';
+  ds.forEach(function(m){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = layGiaTri(m)[1];
+    if (dangChon(layGiaTri(m)[0])) b.className = 'on';
+    b.onclick = function(){ khiBam(layGiaTri(m)[0]); };
+    o.appendChild(b);
+  });
+}
+
+function veChipNguon(){
+  veChip('chipNguon', NGUON_SAN, function(m){ return [m,m]; },
+    function(v){ return $('nguon').value.trim() === v; },
+    function(v){ $('nguon').value = v; veChipNguon(); });
+}
+function veChipDuAn(){
+  veChip('chipDuAn', DU_AN, function(m){ return m; },
+    function(v){ return duAnChon === v; },
+    function(v){ duAnChon = v; veChipDuAn(); });
+}
+
+function doc(){ try{ return JSON.parse(localStorage.getItem(KHO) || '[]'); }catch(e){ return []; } }
+function ghi(ds){ try{ localStorage.setItem(KHO, JSON.stringify(ds.slice(-50))); }catch(e){} }
+
+function veLichSu(){
+  var ds = doc().slice().reverse(), o = $('lichSu');
+  if (!ds.length){ o.innerHTML = '<p class="trong">Chưa ghi khách nào.</p>'; return; }
+  o.innerHTML = '';
+  ds.forEach(function(m){
+    var d = document.createElement('div'); d.className = 'dong';
+    var tt = m.trangThai === 'ok' ? '✅' : (m.trangThai === 'ngo' ? '⏳' : '⚠️');
+    var gio = new Date(m.thoiDiem);
+    gio = ('0'+gio.getHours()).slice(-2) + ':' + ('0'+gio.getMinutes()).slice(-2);
+    d.innerHTML = '<span class="tt">' + tt + '</span><span class="noi"><b></b><small></small></span>';
+    d.querySelector('b').textContent = m.sdt + (m.ten ? ' · ' + m.ten : '');
+    d.querySelector('small').textContent = gio + ' · ' + m.duAn + ' · ' + m.nguon;
+    if (m.trangThai !== 'ok'){
+      var b = document.createElement('button');
+      b.className = 'lai'; b.type = 'button'; b.textContent = 'Gửi lại';
+      b.onclick = function(){ ban(m, b); };
+      d.appendChild(b);
+    }
+    o.appendChild(d);
+  });
+}
+
+/* Gửi thật. Đọc được lời đáp thì đánh dấu chắc chắn; không đọc được thì đánh dấu NGỜ,
+   tuyệt đối không báo "đã xong" cho cái mình chưa đo được. */
+function ban(m, nut){
+  if (typeof NOI_NHAN === 'undefined' || !NOI_NHAN){
+    $('loi').textContent = 'Chưa có nơi nhận (NOI_NHAN trong du-lieu.js đang trống). Số đã lưu trong máy.';
+    return;
+  }
+  if (nut){ nut.disabled = true; nut.textContent = 'Đang gửi…'; }
+  fetch(NOI_NHAN, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+                    body: JSON.stringify(m.goi) })
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      if (j && j.ok) { danhDau(m, 'ok', ''); }
+      else           { danhDau(m, 'hong', (j && j.loi) ? ('Sheet từ chối: ' + j.loi) : 'Sheet từ chối, chưa rõ lý do'); }
+    })
+    .catch(function(){
+      /* Trình duyệt chặn đọc lời đáp, hoặc mất mạng — hai thứ này nhìn giống hệt nhau
+         từ trong đây. Nên gọi là NGỜ chứ không dám gọi là hỏng, cũng không dám gọi là xong. */
+      danhDau(m, 'ngo', 'Đã gửi nhưng chưa đọc được xác nhận — mở Sheet soát giúp em.');
+    });
+}
+
+function danhDau(m, tt, loi){
+  var ds = doc();
+  for (var i = 0; i < ds.length; i++) if (ds[i].id === m.id) ds[i].trangThai = tt;
+  ghi(ds); m.trangThai = tt; veLichSu();
+  $('loi').textContent = loi || '';
+}
+
+$('luu').onclick = function(){
+  /* Bình luận FB hay ghi +84 / 84 / có dấu chấm cách — nắn hết về dạng 0xxxx
+     trước khi soát, kẻo chặn nhầm số thật rồi anh tưởng khách gõ sai. */
+  var sdt = $('sdt').value.replace(/[\s.\-()]/g,'').trim().replace(/^(?:[+]?84)/, '0');
+  var ten = $('ten').value.trim();
+  var nguon = $('nguon').value.trim();
+  $('loi').textContent = '';
+
+  /* Đúng luật mà Apps Script đang soát (soatDuLieu). Chặn ở đây để anh biết ngay,
+     chứ để nó bay lên rồi bị chặn thì mất khách mà không ai hay. */
+  if (!/^0\d{8,10}$/.test(sdt)){
+    $('loi').textContent = 'Số điện thoại phải bắt đầu bằng 0 và dài 9–11 số. Đang nhập: ' + (sdt || '(trống)');
+    return;
+  }
+  if (ten.length > 80){ $('loi').textContent = 'Tên dài quá 80 ký tự.'; return; }
+
+  var m = {
+    id: Date.now() + '-' + Math.random().toString(36).slice(2,7),
+    thoiDiem: new Date().toISOString(),
+    sdt: sdt, ten: ten, duAn: duAnChon, nguon: nguon || '(không ghi)',
+    trangThai: 'hong',
+    goi: {
+      ten: ten, sdt: sdt, duAn: duAnChon,
+      nhanVien: (typeof MAC_DINH !== 'undefined' && MAC_DINH.nguoiBan) ? MAC_DINH.nguoiBan : 'nam',
+      nguon: maKenh(nguon),
+      ketQua: 'chua-sang',      /* khách nhặt từ bình luận, chưa qua bộ tự kiểm tra */
+      phanLoai: 'can-doi-chieu',
+      tomTat: 'Ghi tay từ ' + (nguon || 'nguồn không ghi') + '.' + ($('ghiChu').value.trim() ? '\n' + $('ghiChu').value.trim() : ''),
+      traLoi: '',
+      thoiDiem: new Date().toISOString()
+    }
+  };
+
+  var ds = doc(); ds.push(m); ghi(ds);   /* lưu TRƯỚC khi gửi — mạng hỏng cũng còn số */
+  $('sdt').value = ''; $('ten').value = ''; $('ghiChu').value = '';
+  veLichSu();
+  ban(m, null);
+};
+
+veChipNguon(); veChipDuAn(); veLichSu();
+if (typeof NOI_NHAN === 'undefined')
+  $('loi').textContent = 'Không nạp được du-lieu.js — trang này chưa gửi đi đâu được.';
+</script>
+
+</body>
+</html>
