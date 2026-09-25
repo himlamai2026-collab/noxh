@@ -16,6 +16,7 @@
   button { padding: 11px 16px; font-size: 16px; border-radius: 8px; border: 1px solid var(--nhan); background: var(--nhan); color: #fff; cursor: pointer; margin: 12px 8px 0 0; }
   button.phu { background: transparent; color: var(--nhan); }
   #ketQua { margin-top: 16px; padding: 12px; border-radius: 8px; background: var(--xam); white-space: pre-wrap; }
+  #daiNhap { margin-top: 12px; padding: 12px; border: 2px solid var(--nhan); border-radius: 8px; }
   .loi { color: var(--loi); } .an { display: none; } small { opacity: .75; }
   video { width: 100%; max-height: 60vh; background: #000; border-radius: 8px; }
 </style>
@@ -23,6 +24,8 @@
 <body>
 <h1>Soạn hồ sơ đăng ký nhà ở xã hội</h1>
 <small>Điền → Soát → Xuất ZIP các tờ Word đã điền sẵn. Không có gì rời khỏi máy này trừ khi bấm ghi sổ.</small>
+<div id="daiNhap" class="an">Đang có bản nháp của <b id="daiNhap_ten"></b> lưu lúc <span id="daiNhap_luc"></span>
+  <br><button id="nutTiepTuc" type="button">Tiếp tục</button><button id="nutKhachMoi" type="button" class="phu">Khách mới</button></div>
 
 <h2>1. Dự án và hình thức</h2>
 <div class="hang">
@@ -52,6 +55,7 @@
 <div id="khoi_nx" class="an hang">
   <label>Địa chỉ nhà đang có <input id="nx_diaChiNhaDangCo"></label>
   <label>Xã/phường nơi làm việc <input id="nx_xaNoiLamViec"></label>
+  <label>Xã/phường nơi có dự án (trống = để dòng chấm viết tay) <input id="nx_xaDuAn"></label>
 </div>
 
 <h2>5. Nơi nhận (sửa được)</h2>

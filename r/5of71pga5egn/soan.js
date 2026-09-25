@@ -3,7 +3,7 @@
   if (typeof module === 'object' && module.exports) module.exports = factory(require('./cai-dat.js'));
   else root.SoanHoSo = factory(root.CAI_DAT);
 })(typeof self !== 'undefined' ? self : this, function (CAI_DAT) {
-  var CHON = '☒', TRONG = '☐';
+  var CHON = '☒', TRONG = '☐', CHAM_TAY = '……………………………';   // ô chưa có dữ liệu: để dòng chấm cho khách viết tay
 
   function soTien(n) { return String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
   function khongDau(s) {
@@ -14,14 +14,24 @@
   function ngayVN() { var d = new Date(); return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear(); }
   function la7(dien) { return String(dien || '').indexOf('7-') === 0; }
   function laThuNhap(dien) { return ['5-thu-nhap-thap', '6-cong-nhan', '8-cbccvc'].indexOf(dien) >= 0; }
+  function khongLam(ng) { return ng.vieclam === 'tu-do' || ng.vieclam === 'khong'; }   // không HĐLĐ, không lương hưu → Mẫu 05
+  function trong(v) { return v === undefined || v === null || String(v).trim() === ''; }
+  /* Vợ/chồng chỉ phải chứng minh thu nhập khi người đứng đơn thuộc diện có điều kiện thu nhập (khoản 5/6/7/8 Điều 76)
+     VÀ mua/thuê mua — thuê không xét thu nhập (Điều 78 k2); diện 1/4/9/10 chỉ xét nhà ở. */
+  function vcCoToThuNhap(k) { var dd = k.nguoiDungDon || {}; return k.hinhThuc !== 'thue' && (laThuNhap(dd.dien) || la7(dd.dien)); }
 
   /* ---- chọn tờ ---- */
   function toDoiTuong(ng, laVC) {
-    var d = ng.dien;
+    var d = ng.dien, thuNhap = khongLam(ng) ? [{ mau: '02-mau-05', khoaNoiXin: '02-mau-05' }] : [{ mau: '02-mau-01a', khoaNoiXin: '02-mau-01a' }];
     if (la7(d)) return [{ mau: '02-mau-04', khoaNoiXin: '02-mau-04' }, { mau: d === '7-llvt-quan-doi' ? '02b-mau-bqp' : '02b-mau-noca', khoaNoiXin: d === '7-llvt-quan-doi' ? '02b-mau-bqp' : '02b-mau-noca', phu: true }];
-    if (['9-tra-nha-cong-vu', '10-thu-hoi-dat', '11-sinh-vien'].indexOf(d) >= 0) return laVC ? [] : [{ mau: '02-mau-01-tt08', khoaNoiXin: '02-mau-01-tt08' }];
-    if (laThuNhap(d)) return ng.vieclam === 'tu-do' ? [{ mau: '02-mau-05', khoaNoiXin: '02-mau-05' }] : [{ mau: '02-mau-01a', khoaNoiXin: '02-mau-01a' }];
+    if (laVC) return thuNhap;                    // vợ/chồng: chỉ gọi khi vcCoToThuNhap — tờ thu nhập theo việc làm của chính người đó
+    if (['9-tra-nha-cong-vu', '10-thu-hoi-dat', '11-sinh-vien'].indexOf(d) >= 0) return [{ mau: '02-mau-01-tt08', khoaNoiXin: '02-mau-01-tt08' }];
+    if (laThuNhap(d)) return thuNhap;
     return [];                                   // diện 1, 4: giấy chứng nhận có sẵn, bản kê ghi
+  }
+  function toCua(k, laVC) {                      // tờ đối tượng/thu nhập của một người (không tính tờ nhà ở)
+    if (!laVC) return toDoiTuong(k.nguoiDungDon || {}, false);
+    return k.honNhan === 'ket-hon' && k.voChong && vcCoToThuNhap(k) ? toDoiTuong(k.voChong, true) : [];
   }
   function toNhaO(k) {
     if (k.hinhThuc === 'thue') return [];
@@ -36,10 +46,10 @@
     function them(so, list, cuaAi, ten) {
       list.forEach(function (t) { var ma = so + (t.phu ? 'b' : ''); ds.push({ ma: ma, mau: t.mau, tenFile: ma + '-' + t.mau.replace(/^0\db?-/, '') + '-' + khongDau(ten) + '.docx', cuaAi: cuaAi, khoaNoiXin: t.khoaNoiXin }); });
     }
-    them('02', toDoiTuong(k.nguoiDungDon, false), 'dd', k.nguoiDungDon.hoTen);
+    them('02', toCua(k, false), 'dd', k.nguoiDungDon.hoTen);
     them('03', toNhaO(k), 'dd', k.nguoiDungDon.hoTen);
     if (k.honNhan === 'ket-hon' && k.voChong) {
-      them('04', toDoiTuong(k.voChong, true), 'vc', k.voChong.hoTen);
+      them('04', toCua(k, true), 'vc', k.voChong.hoTen);
       them('05', toNhaO(k), 'vc', k.voChong.hoTen);
     }
     return ds;
@@ -50,20 +60,24 @@
     var loi = [], cfg = CAI_DAT.duAn[k.duAn], dd = k.nguoiDungDon || {};
     if (!cfg) return [{ o: 'duAn', loi: 'Chưa chọn dự án' }];
     function bat(ng, tien, o, ten) { if (!ng || !String(ng[o] || '').trim()) loi.push({ o: tien + o, loi: 'Thiếu ' + ten }); }
-    function batNguoi(ng, tien) {
+    /* Thu nhập / Công an xã chỉ bắt với người THỰC SỰ có tờ tương ứng trong bộ (toCua) — luật miễn thu nhập
+       cho diện 1/4/9/10/11, cho người thuê và cho vợ/chồng của họ; thu nhập 0 là hợp lệ (nội trợ, nghỉ thai sản). */
+    function batNguoi(ng, tien, dsTo) {
       bat(ng, tien, 'hoTen', 'họ tên'); bat(ng, tien, 'noiOHienTai', 'nơi ở hiện tại'); bat(ng, tien, 'thuongTru', 'nơi đăng ký thường trú/tạm trú');
       bat(ng, tien, 'ngheNghiep', 'nghề nghiệp'); bat(ng, tien, 'dien', 'diện đối tượng'); bat(ng, tien, 'vieclam', 'loại việc làm');
       if (!ng.cccd || !ng.cccd.so || !ng.cccd.ngayCap || !ng.cccd.noiCap) loi.push({ o: tien + 'cccd', loi: 'Thiếu căn cước (số, ngày cấp, nơi cấp)' });
-      if (!(Number(ng.thuNhapThang) > 0)) loi.push({ o: tien + 'thuNhapThang', loi: 'Thiếu thu nhập tháng' });
-      if (ng.vieclam === 'tu-do' && ng.dien !== '5-thu-nhap-thap') loi.push({ o: tien + 'vieclam', loi: 'Lao động tự do chỉ khai được diện "người thu nhập thấp đô thị" (Mẫu 05 TT 08/2026 chỉ áp cho khoản 5 Điều 76 không có HĐLĐ)' });
-      if (ng.vieclam === 'tu-do' && !String(ng.congAnXa || '').trim()) loi.push({ o: tien + 'congAnXa', loi: 'Mẫu 05 cần tên Công an xã/phường nơi thường trú/tạm trú (dòng Kính gửi)' });
+      var mau = dsTo.map(function (t) { return t.mau; });
+      if (mau.some(function (m) { return ['02-mau-01a', '02-mau-05', '02-mau-04'].indexOf(m) >= 0; }) &&
+          (trong(ng.thuNhapThang) || !(Number(ng.thuNhapThang) >= 0))) loi.push({ o: tien + 'thuNhapThang', loi: 'Thiếu thu nhập tháng (không có thu nhập thì ghi 0)' });
+      if (khongLam(ng) && laThuNhap(ng.dien) && ng.dien !== '5-thu-nhap-thap') loi.push({ o: tien + 'vieclam', loi: 'Lao động tự do / không có việc làm chỉ khai được diện "người thu nhập thấp đô thị" (Mẫu 05 TT 08/2026 chỉ áp cho khoản 5 Điều 76 không có HĐLĐ)' });
+      if (mau.indexOf('02-mau-05') >= 0 && !String(ng.congAnXa || '').trim()) loi.push({ o: tien + 'congAnXa', loi: 'Mẫu 05 cần tên Công an xã/phường nơi thường trú/tạm trú (dòng Kính gửi)' });
     }
     if (!/^0\d{9}$/.test(String(k.sdt || ''))) loi.push({ o: 'sdt', loi: 'Số điện thoại phải 10 số, bắt đầu bằng 0' });
-    batNguoi(dd, '');
+    batNguoi(dd, '', toCua(k, false));
     if (dd.dien === '11-sinh-vien' && k.hinhThuc !== 'thue') loi.push({ o: 'dien', loi: 'Học sinh, sinh viên chỉ được THUÊ nhà ở xã hội (Luật Nhà ở 2023 Điều 78)' });
     if (k.honNhan === 'ket-hon') {
-      if (!k.voChong) loi.push({ o: 'voChong', loi: 'Đã kết hôn thì phải nhập đủ thông tin vợ/chồng (mỗi người một tờ thu nhập, một tờ nhà ở)' });
-      else batNguoi(k.voChong, 'vc.');
+      if (!k.voChong) loi.push({ o: 'voChong', loi: 'Đã kết hôn thì phải nhập đủ thông tin vợ/chồng (giấy tờ ghi tên, căn cước người kia)' });
+      else batNguoi(k.voChong, 'vc.', toCua(k, true));
       if (!String(k.soDangKyKetHon || '').trim()) loi.push({ o: 'soDangKyKetHon', loi: 'Thiếu số đăng ký kết hôn (Mẫu 02 mục 7)' });
     }
     if (k.hinhThuc !== 'thue') {
@@ -101,7 +115,8 @@
     return { hoTen: ng.hoTen || '', ngaySinh: ng.ngaySinh || '', gioiTinh: ng.gioiTinh || '',
       cccdSo: (ng.cccd && ng.cccd.so) || '', cccdNgayCap: (ng.cccd && ng.cccd.ngayCap) || '', cccdNoiCap: (ng.cccd && ng.cccd.noiCap) || '',
       noiOHienTai: ng.noiOHienTai || '', thuongTru: ng.thuongTru || '', ngheNghiep: ng.ngheNghiep || '', tenCoQuan: ng.tenCoQuan || '',
-      thuNhapSo: soTien(ng.thuNhapThang), thuNhapDong: soTien(ng.thuNhapThang) + ' đồng/tháng', congAnXa: ng.congAnXa || '' };
+      thuNhapSo: trong(ng.thuNhapThang) ? '' : soTien(ng.thuNhapThang), thuNhapDong: trong(ng.thuNhapThang) ? '' : soTien(ng.thuNhapThang) + ' đồng/tháng',
+      congAnXa: ng.congAnXa || '' };
   }
   function duLieuTo(k, to) {
     var cfg = CAI_DAT.duAn[k.duAn], dd = k.nguoiDungDon, vc = k.voChong;
@@ -124,20 +139,26 @@
     if (to.mau === '02-mau-01a') { d.kinhGui = ng.tenCoQuan || ''; if (to.cuaAi === 'vc') d.doiTuong = ''; return d; }
     if (to.mau === '03-mau-02') { d.kinhGui = k.kinhGuiMau02 || cfg.kinhGuiMau02; return d; }
     if (to.mau === '03-mau-03') { var n15 = k.nhaO_duoi15 || {}; d.kinhGui = ng.ubndXa || ''; d.gcnSo = n15.gcnSo || ''; d.dienTichSan = n15.dienTichSan || ''; return d; }
-    if (to.mau === '03-xa-noi-lam' || to.mau === '03b-xn-noi-lam-viec') { var nx = k.nhaO_xa || {}; d.kinhGui = to.mau === '03b-xn-noi-lam-viec' ? (ng.tenCoQuan || '') : cfg.kinhGuiMau02; d.noiDuKienMua = cfg.ten + ', tỉnh ' + cfg.tinh; d.noiLamViec = ng.tenCoQuan || ''; d.xaNoiLamViec = nx.xaNoiLamViec || ''; d.xaDuAn = k.xaDuAn || ''; return d; }
+    if (to.mau === '03-xa-noi-lam' || to.mau === '03b-xn-noi-lam-viec') { var nx = k.nhaO_xa || {}; d.kinhGui = to.mau === '03b-xn-noi-lam-viec' ? (ng.tenCoQuan || '') : (k.kinhGuiMau02 || cfg.kinhGuiMau02); d.noiDuKienMua = cfg.ten + ', tỉnh ' + cfg.tinh; d.noiLamViec = ng.tenCoQuan || ''; d.xaNoiLamViec = nx.xaNoiLamViec || CHAM_TAY; d.xaDuAn = k.xaDuAn || CHAM_TAY; return d; }
     if (to.mau === '02-mau-04' || to.mau === '02b-mau-bqp' || to.mau === '02b-mau-noca') { d.kinhGui = ng.tenCoQuan || ''; return d; }
     if (to.mau === '02-mau-01-tt08') { d.kinhGui = ng.dien === '10-thu-hoi-dat' ? (ng.ubndXa || '') : (ng.tenCoQuan || ''); return d; }
-    return d;   // 02-mau-05: đủ từ nguoi() + doiTuong
+    return d;   // 02-mau-05: đủ từ nguoi(); dòng "Là đối tượng" in sẵn trên mẫu bộ chuẩn 2026, không có thẻ
   }
   function banKe(k) {
     var cfg = CAI_DAT.duAn[k.duAn], ds = chonTo(k).filter(function (t) { return t.ma !== '00'; });
+    var coNhaO = ds.some(function (t) { return /^0[35]/.test(t.ma); });                  // 03/03b của người đứng đơn, 05 của vợ/chồng
+    var coVC = k.honNhan === 'ket-hon' && ds.some(function (t) { return t.cuaAi === 'vc'; });
+    var luuY = CAI_DAT.luuY.filter(function (x) { return !x.khi || (x.khi === 'nhaO' && coNhaO) || (x.khi === 'voChong' && coVC); });
+    var coLuong = ds.some(function (t) { return t.mau === '02-mau-01a' || t.mau === '02-mau-04'; });   // bảng lương 12 tháng chỉ đi kèm 01a/04
+    var giayKem = CAI_DAT.giayKem.filter(function (g) { return typeof g === 'string' || !g.khi || (g.khi === 'luong' && coLuong); })
+      .map(function (g) { return { ten: typeof g === 'string' ? g : g.chu }; });
     var to = ds.map(function (t, i) {
       var nx = CAI_DAT.noiXin[t.khoaNoiXin] || { ten: t.mau, aiKy: '', noiXin: '', baoLau: '' };
       var ai = t.cuaAi === 'vc' ? ' — của ' + k.voChong.hoTen : (t.cuaAi === 'dd' && k.honNhan === 'ket-hon' ? ' — của ' + k.nguoiDungDon.hoTen : '');
       return { stt: t.ma, ten: nx.ten + ai, aiKy: nx.aiKy, noiXin: nx.noiXin, baoLau: nx.baoLau };
     });
     return { tenKhach: k.nguoiDungDon.hoTen, sdt: k.sdt, duAn: cfg.ten, tinh: cfg.tinh, ngaySoan: ngayVN(),
-      to: to, giayKem: CAI_DAT.giayKem.map(function (s) { return { ten: s }; }), luuY: CAI_DAT.luuY.map(function (s) { return { chu: s }; }),
+      to: to, giayKem: giayKem, luuY: luuY.map(function (x) { return { chu: x.chu }; }),
       cauUyTin: CAI_DAT.cauUyTin, lienHe: CAI_DAT.lienHe };
   }
   function tenZip(k) { return 'ho-so-' + khongDau(k.nguoiDungDon.hoTen) + '-' + k.sdt + '-' + homNay() + '.zip'; }
@@ -167,5 +188,5 @@
     });
   }
 
-  return { chonTo: chonTo, sang: sang, duLieuTo: duLieuTo, tenZip: tenZip, soTien: soTien, khongDau: khongDau, homNay: homNay, CHON: CHON, TRONG: TRONG, soan: soan, giaiMa64: giaiMa64 };
+  return { chonTo: chonTo, sang: sang, duLieuTo: duLieuTo, tenZip: tenZip, soTien: soTien, khongDau: khongDau, homNay: homNay, CHON: CHON, TRONG: TRONG, soan: soan, giaiMa64: giaiMa64, banKe: banKe };
 });

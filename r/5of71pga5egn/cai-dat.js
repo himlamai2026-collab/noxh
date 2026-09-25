@@ -46,8 +46,8 @@
     noiXin: {
       '01-don': { ten: 'Đơn đăng ký mua, thuê mua, thuê nhà ở xã hội (Mẫu 01, NĐ 136/2026)', aiKy: 'Khách tự ký', noiXin: 'Không cần xác nhận', baoLau: '—' },
       '02-mau-01a': { ten: 'Giấy xác nhận về đối tượng, thu nhập (Mẫu 01a, TT 32/2025)', aiKy: 'Cơ quan / công ty nơi làm việc; nghỉ hưu: cơ quan BHXH đang chi trả', noiXin: 'Phòng nhân sự / kế toán', baoLau: 'Thường 1–3 ngày (⚠️ tuỳ công ty)' },
-      '02-mau-05': { ten: 'Đơn đề nghị xác nhận điều kiện về thu nhập (Mẫu 05, TT 08/2026)', aiKy: 'Công an cấp xã nơi thường trú/tạm trú', noiXin: 'Công an xã/phường', baoLau: '⚠️ chưa xác minh' },
-      '02-mau-04': { ten: 'Giấy xác nhận về điều kiện thu nhập (Mẫu 04, lực lượng vũ trang)', aiKy: 'Cơ quan, đơn vị nơi công tác', noiXin: 'Đơn vị', baoLau: '⚠️ chưa xác minh' },
+      '02-mau-05': { ten: 'Đơn đề nghị xác nhận điều kiện về thu nhập (Mẫu 05, TT 08/2026)', aiKy: 'Công an cấp xã/phường nơi thường trú/tạm trú (bộ chuẩn công ty 2026 in sẵn dòng ký này)', noiXin: 'Công an xã/phường', baoLau: '⚠️ chưa xác minh' },
+      '02-mau-04': { ten: 'Giấy xác nhận điều kiện về thu nhập (Mẫu 04, TT 08/2026 — khoản 7, lực lượng vũ trang)', aiKy: 'Cơ quan, đơn vị nơi công tác — kèm photo bảng tiền công, tiền lương 12 tháng liền kề (chữ in trên mẫu)', noiXin: 'Đơn vị', baoLau: '⚠️ chưa xác minh' },
       '02b-mau-bqp': { ten: 'Giấy xác nhận về đối tượng (Bộ Quốc phòng)', aiKy: 'Đơn vị cấp Trung đoàn trở lên', noiXin: 'Đơn vị', baoLau: '⚠️ chưa xác minh' },
       '02b-mau-noca': { ten: 'Giấy chứng minh đối tượng trong Công an nhân dân', aiKy: 'Cấp có thẩm quyền của đơn vị', noiXin: 'Đơn vị', baoLau: '⚠️ chưa xác minh' },
       '02-mau-01-tt08': { ten: 'Giấy xác nhận về đối tượng (Mẫu 01, TT 08/2026)', aiKy: 'UBND cấp xã (thu hồi đất) / cơ quan quản lý nhà công vụ / nhà trường', noiXin: 'Theo chân trang mẫu', baoLau: '⚠️ chưa xác minh' },
@@ -56,19 +56,24 @@
       '03-xa-noi-lam': { ten: 'Giấy xác nhận điều kiện nhà ở — có nhà nhưng xa nơi làm việc', aiKy: 'Văn phòng Đăng ký đất đai', noiXin: 'Văn phòng Đăng ký đất đai', baoLau: '⚠️ chưa xác minh' },
       '03b-xn-noi-lam-viec': { ten: 'Giấy xác nhận về nơi làm việc', aiKy: 'Cơ quan / công ty nơi làm việc', noiXin: 'Phòng nhân sự', baoLau: '⚠️ chưa xác minh' }
     },
-    /* Giấy nhân thân phải mang kèm (không có mẫu) — ⚠️ số bản, hạn công chứng, ảnh: chờ bộ thật (spec §11). */
+    /* Giấy nhân thân phải mang kèm (không có mẫu) — theo mục B "Tài liệu nộp kèm hồ sơ" trên Phiếu tiếp nhận hồ sơ
+       của công ty (bộ chuẩn 2026, đối soát 26/09/2026): 6 dòng, có 2 cột bản gốc / bản sao hợp lệ.
+       ⚠️ Số bản mỗi loại + có phải công chứng: phiếu không ghi, chưa xác minh.
+       Dòng có `khi: 'luong'` chỉ in khi bộ có Mẫu 01a hoặc Mẫu 04 (người tự do nộp Mẫu 05 không có bảng lương). */
     giayKem: [
-      'Căn cước công dân của người đứng đơn (và của vợ/chồng nếu đã kết hôn) — bản sao công chứng',
-      'Giấy đăng ký kết hôn (đã kết hôn) HOẶC giấy xác nhận tình trạng hôn nhân (độc thân)',
-      'Giấy khai sinh của con (nếu khai diện độc thân nuôi con dưới 18 tuổi)',
-      'Giấy xác nhận cư trú (CT01) nếu văn phòng yêu cầu',
+      'Căn cước công dân / căn cước của người đứng đơn (và của vợ/chồng nếu đã kết hôn)',
+      'Giấy xác nhận cư trú (CT01) hoặc giấy xác nhận nhân khẩu',
+      'Giấy chứng nhận kết hôn (đã kết hôn) HOẶC giấy xác nhận tình trạng hôn nhân (độc thân, đã ly hôn)',
+      'Giấy khai sinh của con (con nhỏ chưa có căn cước)',
+      { khi: 'luong', chu: 'Bảng tiền công, tiền lương 12 tháng liền kề, cơ quan / công ty ký đóng dấu (mẫu Excel công ty phát; người có Mẫu 01a / Mẫu 04)' },
       'Diện người có công / hộ nghèo, cận nghèo: bản sao giấy chứng nhận tương ứng'
     ],
+    /* Lưu ý in ở bản kê. khi: 'nhaO' = chỉ in khi bộ có tờ nhà ở; 'voChong' = chỉ in khi đã kết hôn và có tờ của vợ/chồng; không có = luôn in. */
     luuY: [
-      'Giấy nhà ở xin trước (07 ngày làm việc), giấy thu nhập / đối tượng xin sau.',
-      'Vợ và chồng mỗi người một tờ nhà ở và một tờ thu nhập, không gộp.',
-      'Ngày ký và chữ ký để trống, ký tay khi nộp.',
-      'Chụp gửi Nam soát trước khi đi xin dấu, tránh phải đi lại.'
+      { khi: 'nhaO', chu: 'Giấy nhà ở xin trước (07 ngày làm việc), giấy thu nhập / đối tượng xin sau.' },
+      { khi: 'voChong', chu: 'Vợ và chồng mỗi người ký tờ riêng của mình (xem mục A), không gộp.' },
+      { chu: 'Ngày ký và chữ ký để trống, ký tay khi nộp.' },
+      { chu: 'Chụp gửi Nam soát trước khi đi xin dấu, tránh phải đi lại.' }
     ],
     cauUyTin: '🤝 Liên hệ trực tiếp văn phòng chủ đầu tư Vinhomes: không tiền cò, không mất phí',
     lienHe: 'Trần Ngọc Nam · Zalo 0879 388 988'
