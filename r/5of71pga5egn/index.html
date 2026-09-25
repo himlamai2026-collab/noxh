@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Soạn hồ sơ NOXH</title>
+<style>
+  :root { --nen: #fff; --chu: #1b1b1b; --vien: #cfcfcf; --nhan: #2a5bd7; --loi: #b00020; --xam: #f4f4f4; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --nen: #151515; --chu: #eee; --vien: #444; --xam: #222; } }
+  body { margin: 0; padding: 16px; background: var(--nen); color: var(--chu); font: 16px/1.45 system-ui, Segoe UI, Arial, sans-serif; max-width: 860px; margin-inline: auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; } h2 { font-size: 17px; margin: 22px 0 8px; border-bottom: 1px solid var(--vien); padding-bottom: 4px; }
+  label { display: block; font-size: 14px; margin-top: 10px; } input, select { width: 100%; box-sizing: border-box; padding: 9px; font-size: 16px; border: 1px solid var(--vien); border-radius: 6px; background: var(--nen); color: var(--chu); }
+  .hang { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; } @media (max-width: 560px) { .hang { grid-template-columns: 1fr; } }
+  .nguoi { border: 1px solid var(--vien); border-radius: 8px; padding: 12px; margin-top: 10px; background: var(--xam); }
+  button { padding: 11px 16px; font-size: 16px; border-radius: 8px; border: 1px solid var(--nhan); background: var(--nhan); color: #fff; cursor: pointer; margin: 12px 8px 0 0; }
+  button.phu { background: transparent; color: var(--nhan); }
+  #ketQua { margin-top: 16px; padding: 12px; border-radius: 8px; background: var(--xam); white-space: pre-wrap; }
+  .loi { color: var(--loi); } .an { display: none; } small { opacity: .75; }
+  video { width: 100%; max-height: 60vh; background: #000; border-radius: 8px; }
+</style>
+</head>
+<body>
+<h1>Soạn hồ sơ đăng ký nhà ở xã hội</h1>
+<small>Điền → Soát → Xuất ZIP các tờ Word đã điền sẵn. Không có gì rời khỏi máy này trừ khi bấm ghi sổ.</small>
+
+<h2>1. Dự án và hình thức</h2>
+<div class="hang">
+  <label>Dự án <select id="duAn"></select></label>
+  <label>Hình thức <select id="hinhThuc"><option value="mua">Mua</option><option value="thue-mua">Thuê mua</option><option value="thue">Thuê</option></select></label>
+</div>
+<label>Số điện thoại khách <input id="sdt" inputmode="numeric" placeholder="10 số"></label>
+
+<h2>2. Người đứng đơn</h2>
+<div id="khoi_dd" class="nguoi"></div>
+
+<h2>3. Hôn nhân</h2>
+<label>Tình trạng <select id="honNhan"><option value="doc-than">Độc thân</option><option value="doc-than-nuoi-con">Độc thân nuôi con dưới 18 tuổi</option><option value="ket-hon">Đã kết hôn</option></select></label>
+<div id="khoi_kh" class="an">
+  <label>Số đăng ký kết hôn <input id="soDangKyKetHon"></label>
+  <h2>3b. Vợ / chồng</h2>
+  <div id="khoi_vc" class="nguoi"></div>
+</div>
+
+<h2>4. Nhà ở tại tỉnh có dự án</h2>
+<label>Tình trạng <select id="nhaO"><option value="chua-co">Chưa có nhà ở (Mẫu 02)</option><option value="duoi-15m2">Có nhà nhưng dưới 15 m²/người (Mẫu 03)</option><option value="xa-noi-lam">Có nhà nhưng xa nơi làm việc</option></select></label>
+<div id="khoi_n15" class="an hang">
+  <label>Số Giấy chứng nhận <input id="n15_gcnSo"></label>
+  <label>Diện tích sàn (m²) <input id="n15_dienTichSan" inputmode="decimal"></label>
+  <label>Số người trong hộ <input id="n15_soNguoi" inputmode="numeric"></label>
+</div>
+<div id="khoi_nx" class="an hang">
+  <label>Địa chỉ nhà đang có <input id="nx_diaChiNhaDangCo"></label>
+  <label>Xã/phường nơi làm việc <input id="nx_xaNoiLamViec"></label>
+</div>
+
+<h2>5. Nơi nhận (sửa được)</h2>
+<div class="hang">
+  <label>Kính gửi trên đơn <input id="kinhGuiDon"></label>
+  <label>Kính gửi Mẫu 02 (cơ quan đất đai) <input id="kinhGuiMau02"></label>
+</div>
+
+<button id="nutSoat" class="phu">Soát</button>
+<button id="nutXuat">Xuất ZIP</button>
+<button id="nutXoa" class="phu">Xoá làm khách mới</button>
+<div id="ketQua"></div>
+<div id="khungQR" class="an"><video id="videoQR" playsinline muted></video><button id="nutDongQR" class="phu">Đóng camera</button></div>
+
+<script src="thu-vien/pizzip.js"></script>
+<script src="thu-vien/docxtemplater.js"></script>
+<script src="thu-vien/jszip.min.js"></script>
+<script src="cai-dat.js"></script>
+<script src="mau.js"></script>
+<script src="soan.js"></script>
+<script src="thu-vien/zxing-reader.js"></script>
+<script src="thu-vien/zxing-wasm-b64.js"></script>
+<script src="quet-qr.js"></script>
+<script src="so-khach.js"></script>
+<script src="giao-dien.js"></script>
+</body>
+</html>

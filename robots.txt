@@ -3,4 +3,6 @@ Allow: /
 
 # Trang nhap khach noi bo, khong phai trang cho khach
 Disallow: /ghi-khach/
+# Trang soan ho so noi bo, duong dan kin
+Disallow: /r/
 Sitemap: https://ongchunoxh.com/sitemap.xml
