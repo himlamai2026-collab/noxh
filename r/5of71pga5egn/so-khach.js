@@ -3,6 +3,20 @@
   var KHOA = 'soan-ho-so.so';
   function bao(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
   function caiDat() { try { return JSON.parse(localStorage.getItem(KHOA) || '{}'); } catch (e) { return {}; } }
+  /* Cài một chạm: mở trang bằng link có đuôi #so=<link Apps Script>&khoa=<khoá> → lưu vào máy này rồi xoá đuôi khỏi thanh địa chỉ. */
+  function docHashCaiDat(hash) {
+    var h = String(hash || ''); if (h.charAt(0) === '#') h = h.slice(1);
+    var ra = {}; h.split('&').forEach(function (c) { var i = c.indexOf('='); if (i > 0) { try { ra[decodeURIComponent(c.slice(0, i))] = decodeURIComponent(c.slice(i + 1)); } catch (e) {} } });
+    if (!ra.so || !ra.khoa || !/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(ra.so)) return null;
+    return { link: ra.so, khoa: ra.khoa };
+  }
+  function nhanCaiDatTuLink() {
+    if (typeof location === 'undefined') return false;
+    var c = docHashCaiDat(location.hash); if (!c) return false;
+    luuCaiDat(c);
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+    return true;
+  }
   function luuCaiDat(c) { try { localStorage.setItem(KHOA, JSON.stringify(c)); } catch (e) {} }
   function goi(hanhDong, them) {
     var c = caiDat(); if (!c.link || !c.khoa) return Promise.resolve({ ok: false, loi: 'chưa cài sổ (link + khoá ở cuối trang)' });
@@ -46,6 +60,7 @@
     });
   }
   function gan(body) {
+    var vuaCai = nhanCaiDatTuLink();
     var c = caiDat(), khung = document.createElement('div');
     khung.innerHTML = '<h2>Sổ khách (Google Sheet)</h2><div class="hang"><label>Link Apps Script <input id="so_link" value="' + bao(c.link) + '"></label>' +
       '<label>Khoá <input id="so_khoa" type="password" value="' + bao(c.khoa) + '"></label></div>' +
@@ -53,7 +68,8 @@
     body.appendChild(khung); bang = khung.querySelector('#so_bang');
     khung.querySelector('#so_luu').addEventListener('click', function () { luuCaiDat({ link: khung.querySelector('#so_link').value.trim(), khoa: khung.querySelector('#so_khoa').value }); taiBang(); });
     khung.querySelector('#so_tai').addEventListener('click', taiBang);
+    if (vuaCai) { var b = document.createElement('div'); b.textContent = 'Đã cài sổ khách vào máy này từ link. Lần sau mở trang bình thường, không cần link có đuôi nữa.'; khung.insertBefore(b, bang); }
     if (c.link && c.khoa) taiBang();
   }
-  return { caiDat: caiDat, luuCaiDat: luuCaiDat, goi: goi, ghiSauXuat: ghiSauXuat, danhSach: danhSach, doiTrangThai: doiTrangThai, gan: gan };
+  return { caiDat: caiDat, luuCaiDat: luuCaiDat, docHashCaiDat: docHashCaiDat, nhanCaiDatTuLink: nhanCaiDatTuLink, goi: goi, ghiSauXuat: ghiSauXuat, danhSach: danhSach, doiTrangThai: doiTrangThai, gan: gan };
 });
