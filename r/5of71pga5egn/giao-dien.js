@@ -13,8 +13,12 @@
       '<label>Số căn cước <input id="' + t + '_cccdSo" inputmode="numeric"></label>' +
       '<label>Ngày cấp <input id="' + t + '_cccdNgayCap" placeholder="dd/mm/yyyy"></label>' +
       '<label>Nơi cấp <input id="' + t + '_cccdNoiCap" value="' + CAI_DAT.noiCapChip + '"></label></div>' +
-      '<button id="nutQR_' + t + '" class="phu" type="button">Quét QR căn cước</button>' +
-      '<input type="file" id="anhQR_' + t + '" accept="image/*" capture="environment" class="an">' +
+      '<button id="nutQR_' + t + '" class="phu" type="button">Quét QR bằng camera</button>' +
+      '<button id="nutAnh_' + t + '" class="phu" type="button">Tải ảnh căn cước lên</button>' +
+      '<input type="file" id="anhQR_' + t + '" accept="image/*" multiple class="an">' +
+      '<details class="cachKhac"><summary>Cách khác: dán chuỗi QR</summary>' +
+      '<small>Quét mã bằng app khác (Zalo, app Camera, VNeID) rồi dán chuỗi hiện ra vào đây.</small>' +
+      '<input id="chuoiQR_' + t + '" placeholder="033…|…|Họ tên|…"></details>' +
       '<label>Nơi ở hiện tại <input id="' + t + '_noiOHienTai"></label>' +
       '<label>Đăng ký thường trú / tạm trú <input id="' + t + '_thuongTru"></label>' +
       '<div class="hang"><label>Nghề nghiệp <input id="' + t + '_ngheNghiep"></label>' +
@@ -103,15 +107,42 @@
     }).catch(function (e) { hien('LỖI: ' + e.message + (e.loi ? '\n' + e.loi.map(function (x) { return '• ' + x.loi; }).join('\n') : ''), true); });
   }
   function xoa() { if (!confirm('Xoá toàn bộ ô đang điền?')) return; boNhap(); location.reload(); }
+  var HONG_DOC = 'Không đọc được mã QR trong ảnh.\n' +
+    '• Ảnh phải là MẶT TRƯỚC thẻ căn cước gắn chip, thấy rõ ô mã QR ở góc trên bên phải.\n' +
+    '• Mã phải nét: chụp cách 20–30 cm, đủ sáng, không loá, không nghiêng. Ảnh mờ thì không máy nào đọc được.\n' +
+    '• Ảnh khách gửi qua Zalo bị nén nhỏ → xin họ gửi lại kiểu "Tệp / File gốc".\n' +
+    '• Thẻ cũ không có ô mã QR thì gõ tay, hoặc quét bằng app khác rồi dán chuỗi (mục "Cách khác").';
+  function nhanQR(t, r) {                              // đổ dữ liệu một thẻ đã đọc được vào khối người t
+    doNguoi(t, { hoTen: r.hoTen, ngaySinh: r.ngaySinh, gioiTinh: r.gioiTinh, thuongTru: r.thuongTru, cccd: { so: r.so, ngayCap: r.ngayCap, noiCap: CAI_DAT.noiCapChip } });
+    if (!o(t + '_noiOHienTai').value) o(t + '_noiOHienTai').value = r.thuongTru;
+    luuNhap(); hien('Đã đọc căn cước: ' + r.hoTen + ' · ' + r.so + '\nSoát lại họ tên và thường trú trên thẻ rồi điền tiếp nghề nghiệp, diện, thu nhập.');
+  }
+  function tienDo(i, n, tep, soTep) {
+    hien('Đang đọc ảnh' + (soTep > 1 ? ' ' + tep + '/' + soTep : '') + '… lượt ' + i + '/' + n);
+  }
   function gaiQR(t) {
-    if (typeof QuetQR === 'undefined') { o('nutQR_' + t).classList.add('an'); return; }
-    o('nutQR_' + t).addEventListener('click', function () {
-      QuetQR.chon({ video: o('videoQR'), khung: o('khungQR'), nutDong: o('nutDongQR'), oTep: o('anhQR_' + t) }).then(function (r) {
-        if (!r) { hien('Không đọc được mã QR. Chụp gần hơn, đủ sáng, thẳng góc rồi thử lại.', true); return; }
-        doNguoi(t, { hoTen: r.hoTen, ngaySinh: r.ngaySinh, gioiTinh: r.gioiTinh, thuongTru: r.thuongTru, cccd: { so: r.so, ngayCap: r.ngayCap, noiCap: CAI_DAT.noiCapChip } });
-        if (!o(t + '_noiOHienTai').value) o(t + '_noiOHienTai').value = r.thuongTru;
-        luuNhap(); hien('Đã đọc căn cước: ' + r.hoTen + ' · ' + r.so);
-      }).catch(function (e) { hien('Lỗi quét: ' + e.message, true); });
+    if (typeof QuetQR === 'undefined') { o('nutQR_' + t).classList.add('an'); o('nutAnh_' + t).classList.add('an'); return; }
+    if (QuetQR.coCamera()) {
+      o('nutQR_' + t).addEventListener('click', function () {
+        hien('Đang mở camera… đưa MẶT TRƯỚC thẻ vào khung, mã QR ở góc trên phải. Không tự ra thì bấm "Chụp lấy về đọc kỹ".');
+        QuetQR.chon({ video: o('videoQR'), khung: o('khungQR'), nutDong: o('nutDongQR'), nutChup: o('nutChupQR'),
+          oTep: o('anhQR_' + t), baoTien: tienDo, bao: function (c) { hien(c); } }).then(function (r) {
+          if (!r) { hien(HONG_DOC, true); return; }
+          nhanQR(t, r);
+        }).catch(function (e) { hien('Lỗi quét: ' + e.message, true); });
+      });
+    } else o('nutQR_' + t).classList.add('an');       // mở bằng file:// trên laptop: không có camera, chỉ tải ảnh lên
+    o('nutAnh_' + t).addEventListener('click', function () {
+      QuetQR.taiAnh({ oTep: o('anhQR_' + t), baoTien: tienDo }).then(function (r) {
+        if (!r) { hien(HONG_DOC, true); return; }
+        nhanQR(t, r);
+      }).catch(function (e) { hien('Lỗi đọc ảnh: ' + e.message, true); });
+    });
+    o('chuoiQR_' + t).addEventListener('input', function () {
+      var v = this.value.trim(); if (!v) return;
+      var r = QuetQR.boc(v);
+      if (!r) { hien('Chuỗi dán vào chưa đúng kiểu QR căn cước (phải là 7 phần cách nhau bằng dấu |, mở đầu bằng 12 số).', true); return; }
+      nhanQR(t, r); this.value = '';
     });
   }
   function khoiDong() {

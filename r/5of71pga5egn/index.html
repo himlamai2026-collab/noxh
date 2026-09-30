@@ -18,6 +18,8 @@
   #ketQua { margin-top: 16px; padding: 12px; border-radius: 8px; background: var(--xam); white-space: pre-wrap; }
   #daiNhap { margin-top: 12px; padding: 12px; border: 2px solid var(--nhan); border-radius: 8px; }
   .loi { color: var(--loi); } .an { display: none; } small { opacity: .75; }
+  .cachKhac { margin-top: 8px; font-size: 14px; } .cachKhac summary { cursor: pointer; color: var(--nhan); }
+  .cachKhac small { display: block; margin: 6px 0 4px; }
   video { width: 100%; max-height: 60vh; background: #000; border-radius: 8px; }
 </style>
 </head>
@@ -68,7 +70,8 @@
 <button id="nutXuat">Xuất ZIP</button>
 <button id="nutXoa" class="phu">Xoá làm khách mới</button>
 <div id="ketQua"></div>
-<div id="khungQR" class="an"><video id="videoQR" playsinline muted></video><button id="nutDongQR" class="phu">Đóng camera</button></div>
+<div id="khungQR" class="an"><video id="videoQR" playsinline muted></video>
+  <button id="nutChupQR" type="button">Chụp lấy về đọc kỹ</button><button id="nutDongQR" type="button" class="phu">Đóng camera</button></div>
 
 <script src="thu-vien/pizzip.js"></script>
 <script src="thu-vien/docxtemplater.js"></script>

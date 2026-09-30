@@ -69,6 +69,8 @@
       var mau = dsTo.map(function (t) { return t.mau; });
       if (mau.some(function (m) { return ['02-mau-01a', '02-mau-05', '02-mau-04'].indexOf(m) >= 0; }) &&
           (trong(ng.thuNhapThang) || !(Number(ng.thuNhapThang) >= 0))) loi.push({ o: tien + 'thuNhapThang', loi: 'Thiếu thu nhập tháng (không có thu nhập thì ghi 0)' });
+      if (ng.dien === '2-3-ho-ngheo-nong-thon') loi.push({ o: tien + 'dien',
+        loi: 'Hộ nghèo, cận nghèo NÔNG THÔN (khoản 2, 3 Điều 76) không nằm trong danh sách được mua, thuê mua nhà ở xã hội (Luật Nhà ở 2023 Điều 78 khoản 1) — diện này được hỗ trợ nhà ở theo chương trình riêng. Nếu khách ở khu vực ĐÔ THỊ thì chọn "Hộ nghèo, cận nghèo đô thị" (khoản 4); khách muốn THUÊ thì hỏi văn phòng dự án, máy chưa có tờ cho diện này.' });
       if (khongLam(ng) && laThuNhap(ng.dien) && ng.dien !== '5-thu-nhap-thap') loi.push({ o: tien + 'vieclam', loi: 'Lao động tự do / không có việc làm chỉ khai được diện "người thu nhập thấp đô thị" (Mẫu 05 TT 08/2026 chỉ áp cho khoản 5 Điều 76 không có HĐLĐ)' });
       if (mau.indexOf('02-mau-05') >= 0 && !String(ng.congAnXa || '').trim()) loi.push({ o: tien + 'congAnXa', loi: 'Mẫu 05 cần tên Công an xã/phường nơi thường trú/tạm trú (dòng Kính gửi)' });
     }
@@ -90,6 +92,7 @@
       if (k.nhaO === 'xa-noi-lam') {
         var nx = k.nhaO_xa || {};
         if (!nx.diaChiNhaDangCo || !nx.xaNoiLamViec) loi.push({ o: 'nhaO_xa', loi: 'Cần địa chỉ nhà đang có và xã/phường nơi làm việc' });
+        loi.push({ o: 'nhaO_xa', nhac: true, loi: 'Diện "có nhà nhưng xa nơi làm việc": khoảng cách tối thiểu do UBND cấp tỉnh quyết định — mức của ' + cfg.tinh + ' CHƯA XÁC MINH, máy không tự chặn. Hỏi văn phòng dự án trước khi cho khách đi xin dấu.' });
       }
       if (laThuNhap(dd.dien)) {
         var t = cfg.tranThuNhap, tn = Number(dd.thuNhapThang) || 0;
@@ -154,6 +157,7 @@
       .map(function (g) { return { ten: typeof g === 'string' ? g : g.chu }; });
     var to = ds.map(function (t, i) {
       var nx = CAI_DAT.noiXin[t.khoaNoiXin] || { ten: t.mau, aiKy: '', noiXin: '', baoLau: '' };
+      if (cfg.noiXin && cfg.noiXin[t.khoaNoiXin]) nx = Object.assign({}, nx, { noiXin: cfg.noiXin[t.khoaNoiXin] });   // tên + địa chỉ riêng của dự án
       var ai = t.cuaAi === 'vc' ? ' — của ' + k.voChong.hoTen : (t.cuaAi === 'dd' && k.honNhan === 'ket-hon' ? ' — của ' + k.nguoiDungDon.hoTen : '');
       return { stt: t.ma, ten: nx.ten + ai, aiKy: nx.aiKy, noiXin: nx.noiXin, baoLau: nx.baoLau };
     });

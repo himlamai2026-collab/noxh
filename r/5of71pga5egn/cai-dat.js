@@ -10,7 +10,10 @@
       'pho-hien': {
         ten: 'Happy Home Phố Hiến', tinh: 'Hưng Yên', mauDon: '01-don-pho-hien',
         kinhGuiDon: 'Công ty Cổ phần Vinhomes',                       // ⚠️ theo bản đơn công ty phát cho Phố Hiến (in sẵn); pháp nhân CĐT chưa xác minh — hỏi văn phòng
-        kinhGuiMau02: 'Văn phòng Đăng ký đất đai tỉnh Hưng Yên',        // ⚠️ suy từ mẫu Hải Phòng công ty phát; sửa được ngay trên form
+        kinhGuiMau02: 'Chi nhánh Văn phòng Đăng ký đất đai số 8',       // ✅ ông chủ chốt 01/10/2026; khớp QĐ 559/QĐ-UBND Hưng Yên 15/02/2026 (chi nhánh số 8 phụ trách phường Phố Hiến, Sơn Nam, Hồng Châu, xã Tân Hưng)
+        /* Cột "Xin ở đâu" trên bản kê, ghi đè bảng noiXin chung cho riêng dự án này. */
+        noiXin: { '03-mau-02': 'Chi nhánh Văn phòng Đăng ký đất đai số 8 — số 70 An Vũ, phường Phố Hiến (⚠️ địa chỉ tra web 01/10/2026, chưa gọi xác nhận)',
+                  '03-xa-noi-lam': 'Chi nhánh Văn phòng Đăng ký đất đai số 8 — số 70 An Vũ, phường Phố Hiến (⚠️ địa chỉ chưa gọi xác nhận)' },
         tranThuNhap: { docThan: 25000000, nuoiCon: 35000000, voChong: 50000000,
           nguon: 'NĐ 136/2026/NĐ-CP Điều 1 khoản 1 (hiệu lực 07/4/2026); Hưng Yên chưa ban hành hệ số (tra 24/08/2026)' }
       },
@@ -38,7 +41,10 @@
     tenDien: {
       '5-thu-nhap-thap': 'Người thu nhập thấp đô thị', '6-cong-nhan': 'Công nhân / người lao động', '8-cbccvc': 'Cán bộ, công chức, viên chức',
       '7-llvt-quan-doi': 'LLVT — quân đội', '7-llvt-cong-an': 'LLVT — công an', '9-tra-nha-cong-vu': 'Đã trả nhà công vụ',
-      '10-thu-hoi-dat': 'Bị thu hồi đất', '11-sinh-vien': 'Học sinh, sinh viên (chỉ thuê)', '1-nguoi-co-cong': 'Người có công', '4-ho-ngheo-do-thi': 'Hộ nghèo, cận nghèo đô thị'
+      '10-thu-hoi-dat': 'Bị thu hồi đất', '11-sinh-vien': 'Học sinh, sinh viên (chỉ thuê)', '1-nguoi-co-cong': 'Người có công', '4-ho-ngheo-do-thi': 'Hộ nghèo, cận nghèo đô thị',
+      /* Cửa chặn, không phải diện bán được: khoản 2 và 3 Điều 76 (hộ nghèo, cận nghèo NÔNG THÔN) không nằm trong
+         danh sách được mua/thuê mua NOXH của Điều 78 khoản 1 — để đây cho khỏi chọn nhầm sang khoản 4 (đô thị). */
+      '2-3-ho-ngheo-nong-thon': '⛔ Hộ nghèo, cận nghèo NÔNG THÔN — không mua được'
     },
     chuHuuTri: ' (nghỉ hưu)',            // Mẫu 01a chân trang 8: đã nghỉ hưu thì ghi thêm
     noiCapChip: 'Cục Cảnh sát quản lý hành chính về trật tự xã hội',   // thẻ CCCD gắn chip 2021; thẻ mẫu 2024 ⚠️ chưa xác minh
