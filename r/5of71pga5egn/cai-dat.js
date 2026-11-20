@@ -81,7 +81,7 @@
       { chu: 'Ngày ký và chữ ký để trống, ký tay khi nộp.' },
       { chu: 'Chụp gửi Nam soát trước khi đi xin dấu, tránh phải đi lại.' }
     ],
-    cauUyTin: '🤝 Liên hệ trực tiếp văn phòng chủ đầu tư Vinhomes: không tiền cò, không mất phí',
+    cauUyTin: '🤝 Hướng dẫn hồ sơ miễn phí, tận tâm từng bước đến ngày nhận nhà',
     lienHe: 'Trần Ngọc Nam · Zalo 0879 388 988'
   };
 });
